@@ -4,6 +4,8 @@ package com.harmonycloud.entity;
  * @author qidong
  * @date 2019/2/13
  */
+
+test
 public class AttendingDiagnosis {
     private Integer attendingDiagnosisId;
     private Integer diagnosisId;
