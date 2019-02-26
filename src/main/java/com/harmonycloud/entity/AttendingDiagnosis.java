@@ -7,14 +7,16 @@ package com.harmonycloud.entity;
 public class AttendingDiagnosis {
     private Integer attendingDiagnosisId;
     private Integer diagnosisId;
+    private Integer patientId;
     private Integer encounterId;
 
 
     public AttendingDiagnosis() {
     }
 
-    public AttendingDiagnosis(Integer attendingDiagnosisId, Integer diagnosisId, Integer encounterId) {
+    public AttendingDiagnosis(Integer attendingDiagnosisId,Integer patientId, Integer diagnosisId, Integer encounterId) {
         this.attendingDiagnosisId = attendingDiagnosisId;
+        this.patientId=patientId;
         this.diagnosisId = diagnosisId;
         this.encounterId = encounterId;
     }
@@ -25,6 +27,14 @@ public class AttendingDiagnosis {
 
     public void setId(Integer attendingDiagnosisId) {
         this.attendingDiagnosisId = attendingDiagnosisId;
+    }
+
+    public Integer getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(Integer patientId) {
+        this.patientId = patientId;
     }
 
     public Integer getDiagnosisId() {
