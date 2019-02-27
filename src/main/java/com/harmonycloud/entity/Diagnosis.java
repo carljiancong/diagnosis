@@ -1,17 +1,23 @@
 package com.harmonycloud.entity;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+
 /**
  * @author qidong
  * @date 2019/2/13
  */
-public class DiagnosisType {
+@Document(collection="diagnosis")
+public class Diagnosis {
+    @Id
     private Integer diagnosisId;
     private String diagnosisDescription;
 
-    public DiagnosisType() {
+    public Diagnosis() {
     }
 
-    public DiagnosisType(Integer diagnosisId, String diagnosisDescription) {
+    public Diagnosis(Integer diagnosisId, String diagnosisDescription) {
         this.diagnosisId = diagnosisId;
         this.diagnosisDescription = diagnosisDescription;
     }
