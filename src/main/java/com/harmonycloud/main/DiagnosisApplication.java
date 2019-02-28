@@ -11,9 +11,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication()
 @EnableSwagger2
 @ComponentScan("com.harmonycloud")
-@EntityScan("com.harmonycloud.entity")
 @EnableMongoRepositories("com.harmonycloud.repository")
-@ServletComponentScan
 public class DiagnosisApplication {
 
     public static void main(String[] args) {
