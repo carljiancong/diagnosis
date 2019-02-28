@@ -34,14 +34,14 @@ public class DiagnosisController {
     @Resource
     ChronicDiagnosisService chronicDiagnosisService;
 
-    @Resource
-    DiagnosisRepository diagnosisRepository;
-
-    @ApiImplicitParam(name = "diagnosis", value = "diagnosis", dataType = "Diagnosis")
-    @PostMapping("/setDiagnosisProblem")
-    public void setSearchByKeyword(@RequestBody Diagnosis diagnosis) {
-        diagnosisRepository.save(diagnosis);
-    }
+//    @Resource
+//    DiagnosisRepository diagnosisRepository;
+//
+//    @ApiImplicitParam(name = "diagnosis", value = "diagnosis", dataType = "Diagnosis")
+//    @PostMapping("/setDiagnosisProblem")
+//    public void setSearchByKeyword(@RequestBody Diagnosis diagnosis) {
+//        diagnosisRepository.save(diagnosis);
+//    }
 
     @ApiOperation(value = "search problem by keyword", httpMethod = "GET")
     @ApiImplicitParam(name = "keyword", value = "keyword", paramType = "query", dataType = "String")
