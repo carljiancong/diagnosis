@@ -39,4 +39,14 @@ public class AttendingDiagnosisService {
         }
         return Result.buildSuccess(attendingDiagnosisList);
     }
+
+    public Result deletePatientDiagnosis(AttendingDiagnosis patientDiagnosis) {
+        try {
+            attendingDiagnosisRepository.delete(patientDiagnosis);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return Result.buildError(CodeMsg.DELETE_DATA_ERROR);
+        }
+        return Result.buildSuccess("success");
+    }
 }

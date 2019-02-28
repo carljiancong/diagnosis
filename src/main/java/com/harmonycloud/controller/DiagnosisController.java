@@ -12,11 +12,9 @@ import com.harmonycloud.service.DiagnosisService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * @author qidong
@@ -36,14 +34,14 @@ public class DiagnosisController {
     @Resource
     ChronicDiagnosisService chronicDiagnosisService;
 
-//    @Resource
-//    DiagnosisRepository diagnosisRepository;
+    @Resource
+    DiagnosisRepository diagnosisRepository;
 
-//    @ApiImplicitParam(name = "diagnosis", value = "diagnosis", dataType = "Diagnosis")
-//    @PostMapping("/setDiagnosisProblem")
-//    public void setSearchByKeyword(@RequestBody Diagnosis diagnosis) {
-//        diagnosisRepository.save(diagnosis);
-//    }
+    @ApiImplicitParam(name = "diagnosis", value = "diagnosis", dataType = "Diagnosis")
+    @PostMapping("/setDiagnosisProblem")
+    public void setSearchByKeyword(@RequestBody Diagnosis diagnosis) {
+        diagnosisRepository.save(diagnosis);
+    }
 
     @ApiOperation(value = "search problem by keyword", httpMethod = "GET")
     @ApiImplicitParam(name = "keyword", value = "keyword", paramType = "query", dataType = "String")
@@ -76,6 +74,17 @@ public class DiagnosisController {
         return attendingDiagnosisService.getPatientDiagnosisList(encounterId);
     }
 
+
+    @ApiOperation(value = "delete patient diagnosis", httpMethod = "POST")
+    @ApiImplicitParam(name = "patientDiagnosis", value = "patientDiagnosis", dataType = "AttendingDiagnosis")
+    @PostMapping("/delPatientDiagnosis")
+    public Result deletePatientDiagnosis(@RequestBody AttendingDiagnosis patientDiagnosis) {
+        if (patientDiagnosis == null) {
+            return Result.buildError(CodeMsg.PARAM_ERROR);
+        }
+        return attendingDiagnosisService.deletePatientDiagnosis(patientDiagnosis);
+    }
+
     @ApiOperation(value = "save chronic problem", httpMethod = "POST")
     @ApiImplicitParam(name = "chronicDiagnosis", value = "chronicDiagnosis", dataType = "ChronicDiagnosis")
     @PostMapping("/chronicProblem")
@@ -96,6 +105,18 @@ public class DiagnosisController {
         }
         return chronicDiagnosisService.getPatientChronicProblemList(patientId);
     }
+
+    @ApiOperation(value = "delete chronic problem", httpMethod = "POST")
+    @ApiImplicitParam(name = "chronicDiagnosis", value = "chronicDiagnosis", dataType = "ChronicDiagnosis")
+    @PostMapping("/delChronicProblem")
+    public Result deletePatientChronicProblem(@RequestBody ChronicDiagnosis chronicDiagnosis) {
+        if (chronicDiagnosis == null) {
+            return Result.buildError(CodeMsg.PARAM_ERROR);
+        }
+        return chronicDiagnosisService.deletePatientChronicProblem(chronicDiagnosis);
+    }
+
+
 
 
 }

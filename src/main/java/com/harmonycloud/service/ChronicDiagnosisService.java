@@ -39,4 +39,14 @@ public class ChronicDiagnosisService {
         }
         return Result.buildSuccess("success");
     }
+
+    public Result deletePatientChronicProblem(ChronicDiagnosis chronicDiagnosis) {
+        try {
+            chronicDiagnosisRepository.delete(chronicDiagnosis);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.buildError(CodeMsg.DELETE_DATA_ERROR);
+        }
+        return Result.buildSuccess("success");
+    }
 }
