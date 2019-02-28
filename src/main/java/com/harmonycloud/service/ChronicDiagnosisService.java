@@ -32,6 +32,7 @@ public class ChronicDiagnosisService {
 
     public Result setPatientChronicProblem(ChronicDiagnosis chronicDiagnosis) {
         try {
+            chronicDiagnosis.setId((int)chronicDiagnosisRepository.count()+1);
             chronicDiagnosisRepository.save(chronicDiagnosis);
         } catch (Exception e) {
             e.printStackTrace();

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author qidong
@@ -16,11 +17,15 @@ import java.util.List;
 @Service
 public class AttendingDiagnosisService {
 
+    /**
+     *
+     */
     @Resource
     AttendingDiagnosisRepository attendingDiagnosisRepository;
 
     public Result setPatientDiagnosis(AttendingDiagnosis patientDiagnosis) {
         try {
+            patientDiagnosis.setId((int)attendingDiagnosisRepository.count()+1);
             attendingDiagnosisRepository.save(patientDiagnosis);
         } catch (Exception e) {
             e.printStackTrace();
