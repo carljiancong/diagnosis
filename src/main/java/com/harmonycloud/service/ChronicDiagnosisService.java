@@ -32,13 +32,14 @@ public class ChronicDiagnosisService {
 
     public Result setPatientChronicProblem(ChronicDiagnosis chronicDiagnosis) {
         try {
-            chronicDiagnosis.setId((int)chronicDiagnosisRepository.count()+1);
+            Integer tmp = (int)System.currentTimeMillis();
+            chronicDiagnosis.setId(tmp);
             chronicDiagnosisRepository.save(chronicDiagnosis);
+            return Result.buildSuccess(tmp);
         } catch (Exception e) {
             e.printStackTrace();
             return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
         }
-        return Result.buildSuccess("success");
     }
 
     public Result deletePatientChronicProblem(ChronicDiagnosis chronicDiagnosis) {
