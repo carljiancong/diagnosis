@@ -1,7 +1,7 @@
 package com.harmonycloud.service;
 
 import com.harmonycloud.entity.ChronicDiagnosis;
-import com.harmonycloud.repository.ChronicDiagnosisRepository;
+import com.harmonycloud.monRepository.ChronicDiagnosisRepository;
 import com.harmonycloud.result.CodeMsg;
 import com.harmonycloud.result.Result;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.harmonycloud.repository;
+package com.harmonycloud.monRepository;
 
 import com.harmonycloud.entity.Diagnosis;
 import org.springframework.data.mongodb.repository.MongoRepository;

@@ -1,9 +1,8 @@
 package com.harmonycloud.controller;
 
+import com.harmonycloud.bo.PatientDiagnosisList;
 import com.harmonycloud.entity.AttendingDiagnosis;
 import com.harmonycloud.entity.ChronicDiagnosis;
-import com.harmonycloud.entity.Diagnosis;
-import com.harmonycloud.repository.DiagnosisRepository;
 import com.harmonycloud.result.CodeMsg;
 import com.harmonycloud.result.Result;
 import com.harmonycloud.service.AttendingDiagnosisService;
@@ -15,6 +14,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author qidong
@@ -54,7 +54,21 @@ public class DiagnosisController {
         return Result.buildError(CodeMsg.PARAM_ERROR);
     }
 
-    @ApiOperation(value = "save patient diagnosis", httpMethod = "POST")
+
+    /**
+     * 增加了oraRepository。save时，存到oracle里。get时，从mongo取。
+     *
+     * 调试save时，有bug，前端调用
+     * {
+     *   "diagnosisId": 0,
+     *   "encounterId": 0,
+     *   "patientId": 0
+     * }时，save失败。
+     *
+     * @param patientDiagnosis
+     * @return
+     */
+    @ApiOperation(value = "save patient diagnosis list", httpMethod = "POST")
     @ApiImplicitParam(name = "patientDiagnosis", value = "patientDiagnosis", dataType = "AttendingDiagnosis")
     @PostMapping("/PatientDiagnosis")
     public Result setPatientDiagnosis(@RequestBody AttendingDiagnosis patientDiagnosis) {
@@ -65,13 +79,13 @@ public class DiagnosisController {
     }
 
     @ApiOperation(value = "get patient diagnosis list", httpMethod = "GET")
-    @ApiImplicitParam(name = "encounterId", value = "encounterId", paramType = "query", dataType = "Integer")
+    @ApiImplicitParam(name = "patientId", value = "patientId", paramType = "query", dataType = "Integer")
     @GetMapping("/PatientDiagnosisList")
-    public Result getPatientDiagnosis(@RequestParam("encounterId") Integer encounterId) {
-        if (encounterId == null) {
+    public Result getPatientDiagnosis(@RequestParam("patientId") Integer patientId) {
+        if (patientId == null) {
             return Result.buildError(CodeMsg.PARAM_ERROR);
         }
-        return attendingDiagnosisService.getPatientDiagnosisList(encounterId);
+        return attendingDiagnosisService.getPatientDiagnosisList(patientId);
     }
 
 

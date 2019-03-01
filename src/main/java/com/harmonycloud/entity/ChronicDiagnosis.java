@@ -1,20 +1,28 @@
 package com.harmonycloud.entity;
 
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import javax.persistence.*;
 
 
 /**
  * @author qidong
  * @date 2019/2/13
  */
-@Document(collection="chronic_diagnosis")
+@Document(collection = "chronic_diagnosis")
+@Entity
+@Table(name = "chronic_diagnosis")
 public class ChronicDiagnosis {
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer chronicDiagnosisId;
+    @Column(name = "diagnosis_id")
     private Integer diagnosisId;
+    @Column(name = "patient_id")
     private Integer patientId;
+    @Column(name = "encounter_id")
     private Integer encounterId;
+    @Column(name = "status")
     private String status;
 
     public ChronicDiagnosis() {

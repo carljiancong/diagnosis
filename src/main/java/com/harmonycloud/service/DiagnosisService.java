@@ -1,13 +1,9 @@
 package com.harmonycloud.service;
 
-import com.harmonycloud.entity.AttendingDiagnosis;
 import com.harmonycloud.entity.Diagnosis;
-import com.harmonycloud.repository.AttendingDiagnosisRepository;
-import com.harmonycloud.repository.DiagnosisRepository;
-import com.harmonycloud.result.CodeMsg;
+import com.harmonycloud.monRepository.DiagnosisRepository;
 import com.harmonycloud.result.Result;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
