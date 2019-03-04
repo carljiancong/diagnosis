@@ -18,7 +18,7 @@ public class Diagnosis {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer diagnosisId;
-    @Column(name = "DIAGNOSIS_DESCRIPTION")
+    @Column(name = "diagnosis_description")
     private String diagnosisDescription;
 
     public Diagnosis(Integer diagnosisId, String diagnosisDescription) {

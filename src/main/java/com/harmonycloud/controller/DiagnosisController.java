@@ -1,6 +1,6 @@
 package com.harmonycloud.controller;
 
-import com.harmonycloud.bo.PatientDiagnosisList;
+//import com.harmonycloud.bo.PatientDiagnosisList;
 import com.harmonycloud.entity.AttendingDiagnosis;
 import com.harmonycloud.entity.ChronicDiagnosis;
 import com.harmonycloud.result.CodeMsg;
@@ -11,37 +11,24 @@ import com.harmonycloud.service.DiagnosisService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
 
-/**
- * @author qidong
- * @date 2019/2/26
- */
-
 @RestController
 @Api(tags = "Diagnosis")
 public class DiagnosisController {
 
-    @Resource
+    @Autowired
     DiagnosisService diagnosisService;
 
-    @Resource
+    @Autowired
     AttendingDiagnosisService attendingDiagnosisService;
 
-    @Resource
+    @Autowired
     ChronicDiagnosisService chronicDiagnosisService;
-
-//    @Resource
-//    DiagnosisRepository diagnosisRepository;
-//
-//    @ApiImplicitParam(name = "diagnosis", value = "diagnosis", dataType = "Diagnosis")
-//    @PostMapping("/setDiagnosisProblem")
-//    public void setSearchByKeyword(@RequestBody Diagnosis diagnosis) {
-//        diagnosisRepository.save(diagnosis);
-//    }
 
     @ApiOperation(value = "search problem by keyword", httpMethod = "GET")
     @ApiImplicitParam(name = "keyword", value = "keyword", paramType = "query", dataType = "String")
@@ -54,59 +41,28 @@ public class DiagnosisController {
         return Result.buildError(CodeMsg.PARAM_ERROR);
     }
 
-
-    /**
-     * 增加了oraRepository。save时，存到oracle里。get时，从mongo取。
-     *
-     * 调试save时，有bug，前端调用
-     * {
-     *   "diagnosisId": 0,
-     *   "encounterId": 0,
-     *   "patientId": 0
-     * }时，save失败。
-     *
-     * @param patientDiagnosis
-     * @return
-     */
-    @ApiOperation(value = "save patient diagnosis list", httpMethod = "POST")
-    @ApiImplicitParam(name = "patientDiagnosis", value = "patientDiagnosis", dataType = "AttendingDiagnosis")
-    @PostMapping("/PatientDiagnosis")
-    public Result setPatientDiagnosis(@RequestBody AttendingDiagnosis patientDiagnosis) {
-        if (patientDiagnosis == null) {
-            return Result.buildError(CodeMsg.PARAM_ERROR);
-        }
-        return attendingDiagnosisService.setPatientDiagnosis(patientDiagnosis);
+    @ApiOperation(value = "save patient attending problem list", httpMethod = "POST")
+    @ApiImplicitParam(name = "attendingDiagnosisList", value = "attendingDiagnosisList", dataType = "AttendingDiagnosis")
+    @PostMapping("/attendingDiagnosis")
+    public Result setAttendingProblem(@RequestBody List<AttendingDiagnosis> attendingDiagnosisList) {
+        return attendingDiagnosisService.setAttendingProblem(attendingDiagnosisList);
     }
 
-    @ApiOperation(value = "get patient diagnosis list", httpMethod = "GET")
+    @ApiOperation(value = "get patient attending problem list", httpMethod = "GET")
     @ApiImplicitParam(name = "patientId", value = "patientId", paramType = "query", dataType = "Integer")
-    @GetMapping("/PatientDiagnosisList")
-    public Result getPatientDiagnosis(@RequestParam("patientId") Integer patientId) {
+    @GetMapping("/attendingproblemList")
+    public Result getAttendingProblem(@RequestParam("patientId") Integer patientId) {
         if (patientId == null) {
             return Result.buildError(CodeMsg.PARAM_ERROR);
         }
         return attendingDiagnosisService.getPatientDiagnosisList(patientId);
     }
 
-
-    @ApiOperation(value = "delete patient diagnosis", httpMethod = "POST")
-    @ApiImplicitParam(name = "patientDiagnosis", value = "patientDiagnosis", dataType = "AttendingDiagnosis")
-    @PostMapping("/delPatientDiagnosis")
-    public Result deletePatientDiagnosis(@RequestBody AttendingDiagnosis patientDiagnosis) {
-        if (patientDiagnosis == null) {
-            return Result.buildError(CodeMsg.PARAM_ERROR);
-        }
-        return attendingDiagnosisService.deletePatientDiagnosis(patientDiagnosis);
-    }
-
-    @ApiOperation(value = "save chronic problem", httpMethod = "POST")
-    @ApiImplicitParam(name = "chronicDiagnosis", value = "chronicDiagnosis", dataType = "ChronicDiagnosis")
+    @ApiOperation(value = "save chronic problem ", httpMethod = "POST")
+    @ApiImplicitParam(name = "chronicDiagnosisList", value = "chronicDiagnosisList", dataType = "ChronicDiagnosis")
     @PostMapping("/chronicProblem")
-    public Result setPatientChronicProblem(@RequestBody ChronicDiagnosis chronicDiagnosis) {
-        if (chronicDiagnosis == null) {
-            return Result.buildError(CodeMsg.PARAM_ERROR);
-        }
-        return chronicDiagnosisService.setPatientChronicProblem(chronicDiagnosis);
+    public Result setChronicProblem(@RequestBody List<ChronicDiagnosis> chronicDiagnosisList) {
+        return chronicDiagnosisService.setChronicProblem(chronicDiagnosisList);
     }
 
 
@@ -119,18 +75,6 @@ public class DiagnosisController {
         }
         return chronicDiagnosisService.getPatientChronicProblemList(patientId);
     }
-
-    @ApiOperation(value = "delete chronic problem", httpMethod = "POST")
-    @ApiImplicitParam(name = "chronicDiagnosis", value = "chronicDiagnosis", dataType = "ChronicDiagnosis")
-    @PostMapping("/delChronicProblem")
-    public Result deletePatientChronicProblem(@RequestBody ChronicDiagnosis chronicDiagnosis) {
-        if (chronicDiagnosis == null) {
-            return Result.buildError(CodeMsg.PARAM_ERROR);
-        }
-        return chronicDiagnosisService.deletePatientChronicProblem(chronicDiagnosis);
-    }
-
-
 
 
 }

@@ -30,12 +30,7 @@ public class AttendingDiagnosis {
     public AttendingDiagnosis() {
     }
 
-    public AttendingDiagnosis(Integer attendingDiagnosisId, Integer diagnosisId, Integer patientId, Integer encounterId) {
-        this.attendingDiagnosisId = attendingDiagnosisId;
-        this.diagnosisId = diagnosisId;
-        this.patientId = patientId;
-        this.encounterId = encounterId;
-    }
+
     public AttendingDiagnosis(Integer diagnosisId, Integer patientId, Integer encounterId) {
         this.diagnosisId = diagnosisId;
         this.patientId = patientId;

@@ -2,8 +2,10 @@ package com.harmonycloud.service;
 
 import com.harmonycloud.entity.ChronicDiagnosis;
 import com.harmonycloud.monRepository.ChronicDiagnosisRepository;
+import com.harmonycloud.oraRepository.ChronicDiagnosisOraRepository;
 import com.harmonycloud.result.CodeMsg;
 import com.harmonycloud.result.Result;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -16,8 +18,11 @@ import java.util.List;
 @Service
 public class ChronicDiagnosisService {
 
-    @Resource
+    @Autowired
     ChronicDiagnosisRepository chronicDiagnosisRepository;
+
+    @Autowired
+    ChronicDiagnosisOraRepository chronicDiagnosisOraRepository;
 
     public Result getPatientChronicProblemList(Integer patientId) {
         List<ChronicDiagnosis> chronicDiagnosisList = null;
@@ -30,25 +35,16 @@ public class ChronicDiagnosisService {
         return Result.buildSuccess(chronicDiagnosisList);
     }
 
-    public Result setPatientChronicProblem(ChronicDiagnosis chronicDiagnosis) {
+    public Result setChronicProblem(List<ChronicDiagnosis> chronicDiagnosisList) {
         try {
-            Integer tmp = (int)System.currentTimeMillis();
-            chronicDiagnosis.setId(tmp);
-            chronicDiagnosisRepository.save(chronicDiagnosis);
-            return Result.buildSuccess(tmp);
+            for (int i = 0; i < chronicDiagnosisList.size(); i++) {
+                ChronicDiagnosis chronicDiagnosis = chronicDiagnosisList.get(i);
+                chronicDiagnosisOraRepository.save(chronicDiagnosis);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
         }
-    }
-
-    public Result deletePatientChronicProblem(ChronicDiagnosis chronicDiagnosis) {
-        try {
-            chronicDiagnosisRepository.delete(chronicDiagnosis);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Result.buildError(CodeMsg.DELETE_DATA_ERROR);
-        }
-        return Result.buildSuccess("success");
+        return Result.buildSuccess("save success");
     }
 }

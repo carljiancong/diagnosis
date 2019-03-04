@@ -3,6 +3,7 @@ package com.harmonycloud.service;
 import com.harmonycloud.entity.Diagnosis;
 import com.harmonycloud.monRepository.DiagnosisRepository;
 import com.harmonycloud.result.Result;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -16,7 +17,7 @@ import java.util.List;
 @Service
 public class DiagnosisService {
 
-    @Resource
+    @Autowired
     DiagnosisRepository diagnosisRepository;
 
 
