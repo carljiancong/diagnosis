@@ -13,6 +13,7 @@ import java.util.List;
 @RepositoryRestResource
 public interface AttendingDiagnosisMonRepository extends MongoRepository<AttendingDiagnosis,Integer> {
 
+    public List<AttendingDiagnosis> findByPatientIdOrderByEncounterId(Integer patientId);
     public List<AttendingDiagnosis> findByEncounterId(Integer encounterId);
 
 }

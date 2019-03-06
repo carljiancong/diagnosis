@@ -12,12 +12,13 @@ import java.util.List;
  * @date 2019/2/13
  */
 
-@Document(collection = "attending_diagosis")
+@Document(collection = "attending_diagnosis")
 @Entity
 @Table(name = "attending_diagosis")
 public class AttendingDiagnosis {
 
     @Id
+    @org.springframework.data.annotation.Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer attendingDiagnosisId;
     @Column(name = "diagnosis_id")

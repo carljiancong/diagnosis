@@ -11,7 +11,7 @@ import java.util.List;
  * @date 2019/2/26
  */
 @RepositoryRestResource
-public interface DiagnosisRepository extends MongoRepository<Diagnosis,Integer> {
+public interface DiagnosisMonRepository extends MongoRepository<Diagnosis,Integer> {
     public List<Diagnosis> findByDiagnosisId(Integer keywordNum);
 
     public List<Diagnosis> findByDiagnosisDescriptionLike(String keyword);

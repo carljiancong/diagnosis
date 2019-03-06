@@ -1,12 +1,11 @@
 package com.harmonycloud.service;
 
 import com.harmonycloud.entity.Diagnosis;
-import com.harmonycloud.monRepository.DiagnosisRepository;
+import com.harmonycloud.monRepository.DiagnosisMonRepository;
 import com.harmonycloud.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,12 +17,12 @@ import java.util.List;
 public class DiagnosisService {
 
     @Autowired
-    DiagnosisRepository diagnosisRepository;
+    DiagnosisMonRepository diagnosisMonRepository;
 
 
     public Result searchByKeyword(String keyword) {
         List<Diagnosis> diagnosesList = new ArrayList<>();
-        List<Diagnosis> diagnoses = diagnosisRepository.findByDiagnosisDescriptionLike(keyword);
+        List<Diagnosis> diagnoses = diagnosisMonRepository.findByDiagnosisDescriptionLike(keyword);
 
         if (diagnoses != null && diagnoses.size() != 0) {
             diagnosesList.addAll(diagnoses);
@@ -32,7 +31,7 @@ public class DiagnosisService {
         // 根据id查询
         try {
             Integer keywordNum = Integer.valueOf(keyword);
-            diagnoses = diagnosisRepository.findByDiagnosisId(keywordNum);
+            diagnoses = diagnosisMonRepository.findByDiagnosisId(keywordNum);
             diagnosesList.addAll(diagnoses);
         } catch (Exception e) {
             e.printStackTrace();

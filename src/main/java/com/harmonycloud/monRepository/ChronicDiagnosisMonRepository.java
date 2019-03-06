@@ -11,6 +11,7 @@ import java.util.List;
  * @date 2019/2/27
  */
 @RepositoryRestResource
-public interface ChronicDiagnosisRepository extends MongoRepository<ChronicDiagnosis, Integer> {
-    public List<ChronicDiagnosis> findByPatientId(Integer patientId);
+public interface ChronicDiagnosisMonRepository extends MongoRepository<ChronicDiagnosis, Integer> {
+    public List<ChronicDiagnosis> findByPatientIdOrderByEncounterId(Integer patientId);
+    public List<ChronicDiagnosis> findByEncounterId(Integer encounterId);
 }

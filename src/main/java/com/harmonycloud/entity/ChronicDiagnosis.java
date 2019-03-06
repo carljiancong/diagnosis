@@ -14,6 +14,7 @@ import javax.persistence.*;
 @Table(name = "chronic_diagnosis")
 public class ChronicDiagnosis {
     @Id
+    @org.springframework.data.annotation.Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer chronicDiagnosisId;
     @Column(name = "diagnosis_id")
