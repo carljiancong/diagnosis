@@ -22,7 +22,7 @@ public class DiagnosisService {
 
     public Result searchByKeyword(String keyword) {
         List<Diagnosis> diagnosesList = new ArrayList<>();
-        List<Diagnosis> diagnoses = diagnosisMonRepository.findByDiagnosisDescriptionLike(keyword);
+        List<Diagnosis> diagnoses = diagnosisMonRepository.findByDiagnosisDescriptionMatchesRegex(keyword);
 
         if (diagnoses != null && diagnoses.size() != 0) {
             diagnosesList.addAll(diagnoses);
@@ -31,8 +31,8 @@ public class DiagnosisService {
         // 根据id查询
         try {
             Integer keywordNum = Integer.valueOf(keyword);
-            diagnoses = diagnosisMonRepository.findByDiagnosisId(keywordNum);
-            diagnosesList.addAll(diagnoses);
+            Diagnosis diagnose = diagnosisMonRepository.findByDiagnosisId(keywordNum);
+            diagnosesList.add(diagnose);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,13 +1,17 @@
 package com.harmonycloud.service;
 
 import com.alibaba.fastjson.JSON;
+import com.harmonycloud.dto.ChronicDiagnosisDto;
 import com.harmonycloud.entity.AttendingDiagnosis;
 import com.harmonycloud.entity.ChronicDiagnosis;
+import com.harmonycloud.entity.Diagnosis;
 import com.harmonycloud.monRepository.ChronicDiagnosisMonRepository;
+import com.harmonycloud.monRepository.DiagnosisMonRepository;
 import com.harmonycloud.oraRepository.ChronicDiagnosisOraRepository;
 import com.harmonycloud.result.CodeMsg;
 import com.harmonycloud.result.Result;
 import com.harmonycloud.rocketmq.Producer;
+import java.util.ArrayList;
 import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.remoting.exception.RemotingException;
@@ -34,6 +38,9 @@ public class ChronicDiagnosisService {
     ChronicDiagnosisOraRepository chronicDiagnosisOraRepository;
 
     @Autowired
+    DiagnosisMonRepository diagnosisMonRepository;
+
+    @Autowired
     Producer producer;
 
     public Result getPatientChronicProblemList(Integer patientId) {
@@ -48,7 +55,17 @@ public class ChronicDiagnosisService {
             e.printStackTrace();
             return Result.buildError(CodeMsg.QUERY_DATA_ERROR);
         }
-        return Result.buildSuccess(chronicDiagnosisList);
+        List<ChronicDiagnosisDto> chronicDiagnosisDtoList = new ArrayList<>();
+        if (chronicDiagnosisList != null || chronicDiagnosisList.size() != 0) {
+            for (ChronicDiagnosis cd: chronicDiagnosisList) {
+                ChronicDiagnosisDto cdd = new ChronicDiagnosisDto();
+                Diagnosis diagnosis = diagnosisMonRepository.findByDiagnosisId(cd.getDiagnosisId());
+                cdd.setChronicDiagnosis(cd);
+                cdd.setDiagnosisDescription(diagnosis.getDiagnosisDescription());
+                chronicDiagnosisDtoList.add(cdd);
+            }
+        }
+        return Result.buildSuccess(chronicDiagnosisDtoList);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -93,6 +110,6 @@ public class ChronicDiagnosisService {
                 return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
             }
         }
-        return setChronicProblem(chronicDiagnosisNewList );
+        return setChronicProblem(chronicDiagnosisNewList);
     }
 }

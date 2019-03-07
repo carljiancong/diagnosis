@@ -76,13 +76,13 @@ public class DiagnosisController {
     }
 
     @ApiOperation(value = "get patient attending problem list", httpMethod = "GET")
-    @ApiImplicitParam(name = "patientId", value = "patientId", paramType = "query", dataType = "Integer")
+    @ApiImplicitParam(name = "encounterId", value = "encounterId", paramType = "query", dataType = "Integer")
     @GetMapping("/attendingproblemList")
-    public Result getAttendingProblem(@RequestParam("patientId") Integer patientId) {
-        if (patientId == null) {
+    public Result getAttendingProblem(@RequestParam("encounterId") Integer encounterId) {
+        if (encounterId == null) {
             return Result.buildError(CodeMsg.PARAM_ERROR);
         }
-        return attendingDiagnosisService.getPatientDiagnosisList(patientId);
+        return attendingDiagnosisService.getPatientDiagnosisList(encounterId);
     }
 
     @ApiOperation(value = "save chronic problem ", httpMethod = "POST")

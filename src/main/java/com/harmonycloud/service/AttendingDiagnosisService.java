@@ -1,8 +1,11 @@
 package com.harmonycloud.service;
 
 import com.alibaba.fastjson.JSON;
+import com.harmonycloud.dto.AttendingDiagnosisDto;
 import com.harmonycloud.entity.AttendingDiagnosis;
+import com.harmonycloud.entity.Diagnosis;
 import com.harmonycloud.monRepository.AttendingDiagnosisMonRepository;
+import com.harmonycloud.monRepository.DiagnosisMonRepository;
 import com.harmonycloud.oraRepository.AttendingDiagnosisOraRepository;
 import com.harmonycloud.result.CodeMsg;
 import com.harmonycloud.result.Result;
@@ -11,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,6 +34,9 @@ public class AttendingDiagnosisService {
 
     @Autowired
     AttendingDiagnosisOraRepository attendingDiagnosisOraRepository;
+
+    @Autowired
+    DiagnosisMonRepository diagnosisMonRepository;
 
     @Autowired
     Producer producer;
@@ -63,24 +70,34 @@ public class AttendingDiagnosisService {
     }
 
     /**
-     * 通过patient id 查找病人的最近的encounter id，然后在通过
-     * encounter id查到到最近一次到医院的就诊记录
-     * @param patientId
+     * 通过 encounter id查到到最近一次到医院的就诊记录
+     * @param encounterId
      * @return
      */
-    public Result getPatientDiagnosisList(Integer patientId) {
+    public Result getPatientDiagnosisList(Integer encounterId) {
         List<AttendingDiagnosis> attendingDiagnosisList = null;
         try {
-            attendingDiagnosisList = attendingDiagnosisMonRepository.findByPatientIdOrderByEncounterId(patientId);
-            if (attendingDiagnosisList != null || attendingDiagnosisList.size() != 0) {
-                Integer encounterId = attendingDiagnosisList.get(attendingDiagnosisList.size()-1).getEncounterId();
-                attendingDiagnosisList = attendingDiagnosisMonRepository.findByEncounterId(encounterId);
-            }
+//            attendingDiagnosisList = attendingDiagnosisMonRepository.findByPatientIdOrderByEncounterId(patientId);
+//            if (attendingDiagnosisList != null || attendingDiagnosisList.size() != 0) {
+//                Integer encounterId = attendingDiagnosisList.get(attendingDiagnosisList.size()-1).getEncounterId();
+//                attendingDiagnosisList = attendingDiagnosisMonRepository.findByEncounterId(encounterId);
+//            }
+            attendingDiagnosisList = attendingDiagnosisMonRepository.findByEncounterId(encounterId);
         } catch (Exception e) {
             e.printStackTrace();
             return Result.buildError(CodeMsg.QUERY_DATA_ERROR);
         }
-        return Result.buildSuccess(attendingDiagnosisList);
+        List<AttendingDiagnosisDto> addList = new ArrayList<>();
+        if(attendingDiagnosisList != null || attendingDiagnosisList.size() != 0) {
+            for (AttendingDiagnosis ad: attendingDiagnosisList) {
+                AttendingDiagnosisDto add = new AttendingDiagnosisDto();
+                Diagnosis diagnosis = diagnosisMonRepository.findByDiagnosisId(ad.getDiagnosisId());
+                add.setAttendingDiagnosis(ad);
+                add.setDiagnosisDescription(diagnosis.getDiagnosisDescription());
+                addList.add(add);
+            }
+        }
+        return Result.buildSuccess(addList);
     }
 
     /**
