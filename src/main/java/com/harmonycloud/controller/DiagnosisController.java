@@ -5,6 +5,8 @@ import com.harmonycloud.bo.AttendingDiagnosisNewAndOldList;
 import com.harmonycloud.bo.ChronicDiagnosisNewAndOldList;
 import com.harmonycloud.entity.AttendingDiagnosis;
 import com.harmonycloud.entity.ChronicDiagnosis;
+import com.harmonycloud.entity.Diagnosis;
+import com.harmonycloud.monRepository.DiagnosisMonRepository;
 import com.harmonycloud.result.CodeMsg;
 import com.harmonycloud.result.Result;
 import com.harmonycloud.rocketmq.Producer;
@@ -38,6 +40,15 @@ public class DiagnosisController {
 
     @Autowired
     ChronicDiagnosisService chronicDiagnosisService;
+
+    @Autowired
+    DiagnosisMonRepository diagnosisMonRepository;
+
+//    @PostMapping("/save")
+//    public String saveProblem(@RequestBody Diagnosis diagnosis) {
+//        diagnosisMonRepository.save(diagnosis);
+//        return "a";
+//    }
 
     @ApiOperation(value = "search problem by keyword", httpMethod = "GET")
     @ApiImplicitParam(name = "keyword", value = "keyword", paramType = "query", dataType = "String")
