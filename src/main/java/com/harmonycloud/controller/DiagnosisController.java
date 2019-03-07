@@ -57,8 +57,7 @@ public class DiagnosisController {
     }
 
     @ApiOperation(value = "update patient attending problem list", httpMethod = "POST")
-    @ApiImplicitParam(name = "attendingDiagnosisNewAndOldList", value = "attendingDiagnosisNewAndOldList", paramType = "query",
-            dataType = "AttendingDiagnosisNewAndOldList")
+    @ApiImplicitParam(name = "attendingDiagnosisNewAndOldList", value = "attendingDiagnosisNewAndOldList", dataType = "AttendingDiagnosisNewAndOldList")
     @PostMapping("/attendingDiagnosisUpdate")
     public Result updateAttendingProblemList(@RequestBody AttendingDiagnosisNewAndOldList attendingDiagnosisNewAndOldList) {
         return attendingDiagnosisService.updateAttendingProblemList(attendingDiagnosisNewAndOldList.getAttendingDiagnosisNewList(),
@@ -83,6 +82,7 @@ public class DiagnosisController {
     }
 
     @ApiOperation(value = "update chronic problem list", httpMethod = "POST")
+    @ApiImplicitParam(name = "chronicDiagnosisNewAndOldList", value = "chronicDiagnosisNewAndOldList", dataType = "ChronicDiagnosisNewAndOldList")
     @PostMapping("/chronicProblemUpdate")
     public Result updateChronicProblemList(@RequestBody ChronicDiagnosisNewAndOldList chronicDiagnosisNewAndOldList) {
         return chronicDiagnosisService.updateChronicProblemList(chronicDiagnosisNewAndOldList.getChronicDiagnosisNewList(),
