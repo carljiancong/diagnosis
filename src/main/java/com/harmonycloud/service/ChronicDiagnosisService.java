@@ -1,6 +1,7 @@
 package com.harmonycloud.service;
 
 import com.alibaba.fastjson.JSON;
+import com.harmonycloud.entity.AttendingDiagnosis;
 import com.harmonycloud.entity.ChronicDiagnosis;
 import com.harmonycloud.monRepository.ChronicDiagnosisMonRepository;
 import com.harmonycloud.oraRepository.ChronicDiagnosisOraRepository;
@@ -15,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author qidong
@@ -69,5 +72,27 @@ public class ChronicDiagnosisService {
             return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
         }
         return Result.buildSuccess("save success");
+    }
+
+    /**
+     * 与updateAttendingDiagnosis 的原理相同
+     * @param chronicDiagnosisNewList
+     * @param chronicDiagnosisOldList
+     * @return
+     */
+    public Result updateChronicProblemList(List<ChronicDiagnosis> chronicDiagnosisNewList, List<ChronicDiagnosis> chronicDiagnosisOldList) {
+        Integer encounterId = chronicDiagnosisOldList.get(0).getEncounterId();
+        List<ChronicDiagnosis> ChronicDiagnosisList = chronicDiagnosisMonRepository.findByEncounterId(encounterId);
+        Set<String> cdlSet = new HashSet<>();
+        for (ChronicDiagnosis cd: ChronicDiagnosisList) {
+            cdlSet.add(cd.toString());
+        }
+
+        for (ChronicDiagnosis cd: ChronicDiagnosisList) {
+            if (cdlSet.contains(cd.toString()) == false) {
+                return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
+            }
+        }
+        return setChronicProblem(chronicDiagnosisNewList );
     }
 }

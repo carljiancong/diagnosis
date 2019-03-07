@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author qidong
@@ -81,5 +83,27 @@ public class AttendingDiagnosisService {
         return Result.buildSuccess(attendingDiagnosisList);
     }
 
+    /**
+     * oldList里的encounterId都是一定的，取其中encounterId。在数据库找出encounterId下的所有数据，
+     * 让oldList与数据库中的值对比，若没有一处不同，则可以更新，否则更新失败。
+     * @param attendingDiagnosisNewList
+     * @param attendingDiagnosisOldList
+     * @return
+     */
+    public Result updateAttendingProblemList(List<AttendingDiagnosis> attendingDiagnosisNewList,
+                                             List<AttendingDiagnosis> attendingDiagnosisOldList) {
+        Integer encounterId = attendingDiagnosisOldList.get(0).getEncounterId();
+        List<AttendingDiagnosis> attendingDiagnosisList = attendingDiagnosisMonRepository.findByEncounterId(encounterId);
+        Set<String> adlSet = new HashSet<>();
+        for (AttendingDiagnosis ad: attendingDiagnosisList) {
+            adlSet.add(ad.toString());
+        }
 
+        for (AttendingDiagnosis ad: attendingDiagnosisOldList) {
+            if (adlSet.contains(ad.toString()) == false) {
+                return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
+            }
+        }
+        return setAttendingProblem(attendingDiagnosisNewList);
+    }
 }

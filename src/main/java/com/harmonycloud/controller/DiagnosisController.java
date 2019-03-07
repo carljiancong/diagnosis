@@ -1,6 +1,8 @@
 package com.harmonycloud.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.harmonycloud.bo.AttendingDiagnosisNewAndOldList;
+import com.harmonycloud.bo.ChronicDiagnosisNewAndOldList;
 import com.harmonycloud.entity.AttendingDiagnosis;
 import com.harmonycloud.entity.ChronicDiagnosis;
 import com.harmonycloud.result.CodeMsg;
@@ -55,11 +57,12 @@ public class DiagnosisController {
     }
 
     @ApiOperation(value = "update patient attending problem list", httpMethod = "POST")
-    @ApiImplicitParam(name = "attendingDiagnosisOldList", value = "attendingDiagnosisOldList", dataType = "AttendingDiagnosis")
+    @ApiImplicitParam(name = "attendingDiagnosisNewAndOldList", value = "attendingDiagnosisNewAndOldList", paramType = "query",
+            dataType = "AttendingDiagnosisNewAndOldList")
     @PostMapping("/attendingDiagnosisUpdate")
-    public Result updateAttendingProblemList(@RequestBody List<AttendingDiagnosis> attendingDiagnosisNewList,
-                                             @RequestBody List<AttendingDiagnosis> attendingDiagnosisOldList) {
-        return attendingDiagnosisService.setAttendingProblem(attendingDiagnosisNewList);
+    public Result updateAttendingProblemList(@RequestBody AttendingDiagnosisNewAndOldList attendingDiagnosisNewAndOldList) {
+        return attendingDiagnosisService.updateAttendingProblemList(attendingDiagnosisNewAndOldList.getAttendingDiagnosisNewList(),
+                attendingDiagnosisNewAndOldList.getAttendingDiagnosisOldList());
     }
 
     @ApiOperation(value = "get patient attending problem list", httpMethod = "GET")
@@ -80,11 +83,10 @@ public class DiagnosisController {
     }
 
     @ApiOperation(value = "update chronic problem list", httpMethod = "POST")
-    @ApiImplicitParam(name = "chronicDiagnosisOldList", value = "chronicDiagnosisOldList", dataType = "ChronicDiagnosis")
     @PostMapping("/chronicProblemUpdate")
-    public Result updateChronicProblemList(@RequestBody List<ChronicDiagnosis> chronicDiagnosisNewList,
-                                           @RequestBody List<ChronicDiagnosis> chronicDiagnosisOldList) {
-        return chronicDiagnosisService.setChronicProblem(chronicDiagnosisNewList);
+    public Result updateChronicProblemList(@RequestBody ChronicDiagnosisNewAndOldList chronicDiagnosisNewAndOldList) {
+        return chronicDiagnosisService.updateChronicProblemList(chronicDiagnosisNewAndOldList.getChronicDiagnosisNewList(),
+                chronicDiagnosisNewAndOldList.getChronicDiagnosisOldList());
     }
 
     @ApiOperation(value = "get chronic problem list", httpMethod = "GET")

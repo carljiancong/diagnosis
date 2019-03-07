@@ -1,11 +1,8 @@
 package com.harmonycloud.entity;
 
-import com.harmonycloud.result.Result;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnCloudPlatform;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.*;
-import java.util.List;
 
 /**
  * @author qidong
@@ -68,5 +65,15 @@ public class AttendingDiagnosis {
 
     public void setEncounterId(Integer encounterId) {
         this.encounterId = encounterId;
+    }
+
+    @Override
+    public String toString() {
+        return "AttendingDiagnosis{" +
+                "attendingDiagnosisId=" + attendingDiagnosisId +
+                ", diagnosisId=" + diagnosisId +
+                ", patientId=" + patientId +
+                ", encounterId=" + encounterId +
+                '}';
     }
 }
