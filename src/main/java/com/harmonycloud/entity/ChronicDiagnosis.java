@@ -77,4 +77,15 @@ public class ChronicDiagnosis {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    @Override
+    public String toString() {
+        return "ChronicDiagnosis{" +
+                "chronicDiagnosisId=" + chronicDiagnosisId +
+                ", diagnosisId=" + diagnosisId +
+                ", patientId=" + patientId +
+                ", encounterId=" + encounterId +
+                ", status='" + status + '\'' +
+                '}';
+    }
 }
