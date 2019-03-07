@@ -13,6 +13,9 @@ public class ChronicDiagnosisNewAndOldList {
     List<ChronicDiagnosis> chronicDiagnosisNewList;
     List<ChronicDiagnosis> chronicDiagnosisOldList;
 
+    public ChronicDiagnosisNewAndOldList() {
+    }
+
     public ChronicDiagnosisNewAndOldList(List<ChronicDiagnosis> chronicDiagnosisNewList,
                                          List<ChronicDiagnosis> chronicDiagnosisOldList) {
         this.chronicDiagnosisNewList = chronicDiagnosisNewList;

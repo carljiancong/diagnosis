@@ -12,6 +12,9 @@ public class AttendingDiagnosisNewAndOldList {
     List<AttendingDiagnosis> attendingDiagnosisNewList;
     List<AttendingDiagnosis> attendingDiagnosisOldList;
 
+    public AttendingDiagnosisNewAndOldList() {
+    }
+
     public AttendingDiagnosisNewAndOldList(List<AttendingDiagnosis> attendingDiagnosisNewList,
                                            List<AttendingDiagnosis> attendingDiagnosisOldList) {
         this.attendingDiagnosisNewList = attendingDiagnosisNewList;
