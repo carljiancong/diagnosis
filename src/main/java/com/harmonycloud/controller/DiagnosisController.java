@@ -71,8 +71,8 @@ public class DiagnosisController {
     @ApiImplicitParam(name = "attendingDiagnosisNewAndOldList", value = "attendingDiagnosisNewAndOldList", dataType = "AttendingDiagnosisNewAndOldList")
     @PostMapping("/attendingDiagnosisUpdate")
     public Result updateAttendingProblemList(@RequestBody AttendingDiagnosisNewAndOldList attendingDiagnosisNewAndOldList) {
-        return attendingDiagnosisService.updateAttendingProblemList(attendingDiagnosisNewAndOldList.getAttendingDiagnosisNewList(),
-                attendingDiagnosisNewAndOldList.getAttendingDiagnosisOldList());
+        return attendingDiagnosisService.updateAttendingProblemList(attendingDiagnosisNewAndOldList.getNewAttendingDiagnosisList(),
+                attendingDiagnosisNewAndOldList.getOldAttendingDiagnosisList());
     }
 
     @ApiOperation(value = "get patient attending problem list", httpMethod = "GET")
@@ -96,8 +96,8 @@ public class DiagnosisController {
     @ApiImplicitParam(name = "chronicDiagnosisNewAndOldList", value = "chronicDiagnosisNewAndOldList", dataType = "ChronicDiagnosisNewAndOldList")
     @PostMapping("/chronicProblemUpdate")
     public Result updateChronicProblemList(@RequestBody ChronicDiagnosisNewAndOldList chronicDiagnosisNewAndOldList) {
-        return chronicDiagnosisService.updateChronicProblemList(chronicDiagnosisNewAndOldList.getChronicDiagnosisNewList(),
-                chronicDiagnosisNewAndOldList.getChronicDiagnosisOldList());
+        return chronicDiagnosisService.updateChronicProblemList(chronicDiagnosisNewAndOldList.getNewChronicDiagnosisList(),
+                chronicDiagnosisNewAndOldList.getOldChronicDiagnosisList());
     }
 
     @ApiOperation(value = "get chronic problem list", httpMethod = "GET")

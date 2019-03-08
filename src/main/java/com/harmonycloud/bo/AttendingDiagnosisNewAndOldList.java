@@ -9,31 +9,31 @@ import java.util.List;
  * @date 2019/3/6
  */
 public class AttendingDiagnosisNewAndOldList {
-    List<AttendingDiagnosis> attendingDiagnosisNewList;
-    List<AttendingDiagnosis> attendingDiagnosisOldList;
+    List<AttendingDiagnosis> newAttendingDiagnosisList;
+    List<AttendingDiagnosis> oldAttendingDiagnosisList;
 
     public AttendingDiagnosisNewAndOldList() {
     }
 
-    public AttendingDiagnosisNewAndOldList(List<AttendingDiagnosis> attendingDiagnosisNewList,
-                                           List<AttendingDiagnosis> attendingDiagnosisOldList) {
-        this.attendingDiagnosisNewList = attendingDiagnosisNewList;
-        this.attendingDiagnosisOldList = attendingDiagnosisOldList;
+    public AttendingDiagnosisNewAndOldList(List<AttendingDiagnosis> newAttendingDiagnosisList,
+                                           List<AttendingDiagnosis> oldAttendingDiagnosisList) {
+        this.newAttendingDiagnosisList = newAttendingDiagnosisList;
+        this.oldAttendingDiagnosisList = oldAttendingDiagnosisList;
     }
 
-    public List<AttendingDiagnosis> getAttendingDiagnosisNewList() {
-        return attendingDiagnosisNewList;
+    public List<AttendingDiagnosis> getNewAttendingDiagnosisList() {
+        return newAttendingDiagnosisList;
     }
 
-    public void setAttendingDiagnosisNewList(List<AttendingDiagnosis> attendingDiagnosisNewList) {
-        this.attendingDiagnosisNewList = attendingDiagnosisNewList;
+    public void setNewAttendingDiagnosisList(List<AttendingDiagnosis> newAttendingDiagnosisList) {
+        this.newAttendingDiagnosisList = newAttendingDiagnosisList;
     }
 
-    public List<AttendingDiagnosis> getAttendingDiagnosisOldList() {
-        return attendingDiagnosisOldList;
+    public List<AttendingDiagnosis> getOldAttendingDiagnosisList() {
+        return oldAttendingDiagnosisList;
     }
 
-    public void setAttendingDiagnosisOldList(List<AttendingDiagnosis> attendingDiagnosisOldList) {
-        this.attendingDiagnosisOldList = attendingDiagnosisOldList;
+    public void setOldAttendingDiagnosisList(List<AttendingDiagnosis> oldAttendingDiagnosisList) {
+        this.oldAttendingDiagnosisList = oldAttendingDiagnosisList;
     }
 }

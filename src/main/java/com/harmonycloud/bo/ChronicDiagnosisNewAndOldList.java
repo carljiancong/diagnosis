@@ -10,31 +10,31 @@ import java.util.List;
  * @date 2019/3/6
  */
 public class ChronicDiagnosisNewAndOldList {
-    List<ChronicDiagnosis> chronicDiagnosisNewList;
-    List<ChronicDiagnosis> chronicDiagnosisOldList;
+    List<ChronicDiagnosis> newChronicDiagnosisList;
+    List<ChronicDiagnosis> oldChronicDiagnosisList;
 
     public ChronicDiagnosisNewAndOldList() {
     }
 
-    public ChronicDiagnosisNewAndOldList(List<ChronicDiagnosis> chronicDiagnosisNewList,
-                                         List<ChronicDiagnosis> chronicDiagnosisOldList) {
-        this.chronicDiagnosisNewList = chronicDiagnosisNewList;
-        this.chronicDiagnosisOldList = chronicDiagnosisOldList;
+    public ChronicDiagnosisNewAndOldList(List<ChronicDiagnosis> newChronicDiagnosisList,
+                                         List<ChronicDiagnosis> oldChronicDiagnosisList) {
+        this.newChronicDiagnosisList = newChronicDiagnosisList;
+        this.oldChronicDiagnosisList = oldChronicDiagnosisList;
     }
 
-    public List<ChronicDiagnosis> getChronicDiagnosisNewList() {
-        return chronicDiagnosisNewList;
+    public List<ChronicDiagnosis> getNewChronicDiagnosisList() {
+        return newChronicDiagnosisList;
     }
 
-    public void setChronicDiagnosisNewList(List<ChronicDiagnosis> chronicDiagnosisNewList) {
-        this.chronicDiagnosisNewList = chronicDiagnosisNewList;
+    public void setNewChronicDiagnosisList(List<ChronicDiagnosis> newChronicDiagnosisList) {
+        this.newChronicDiagnosisList = newChronicDiagnosisList;
     }
 
-    public List<ChronicDiagnosis> getChronicDiagnosisOldList() {
-        return chronicDiagnosisOldList;
+    public List<ChronicDiagnosis> getOldChronicDiagnosisList() {
+        return oldChronicDiagnosisList;
     }
 
-    public void setChronicDiagnosisOldList(List<ChronicDiagnosis> chronicDiagnosisOldList) {
-        this.chronicDiagnosisOldList = chronicDiagnosisOldList;
+    public void setOldChronicDiagnosisList(List<ChronicDiagnosis> oldChronicDiagnosisList) {
+        this.oldChronicDiagnosisList = oldChronicDiagnosisList;
     }
 }
