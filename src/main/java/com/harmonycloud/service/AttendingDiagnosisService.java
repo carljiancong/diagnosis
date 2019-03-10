@@ -88,7 +88,7 @@ public class AttendingDiagnosisService {
             return Result.buildError(CodeMsg.QUERY_DATA_ERROR);
         }
         List<AttendingDiagnosisDto> addList = new ArrayList<>();
-        if(attendingDiagnosisList != null || attendingDiagnosisList.size() != 0) {
+        if((attendingDiagnosisList != null) && (attendingDiagnosisList.size() != 0)) {
             for (AttendingDiagnosis ad: attendingDiagnosisList) {
                 AttendingDiagnosisDto add = new AttendingDiagnosisDto();
                 Diagnosis diagnosis = diagnosisMonRepository.findByDiagnosisId(ad.getDiagnosisId());

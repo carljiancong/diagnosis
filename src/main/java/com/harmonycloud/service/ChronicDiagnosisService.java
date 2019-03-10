@@ -47,7 +47,7 @@ public class ChronicDiagnosisService {
         List<ChronicDiagnosis> chronicDiagnosisList = null;
         try {
             chronicDiagnosisList = chronicDiagnosisMonRepository.findByPatientIdOrderByEncounterId(patientId);
-            if (chronicDiagnosisList != null || chronicDiagnosisList.size() != 0 ) {
+            if ((chronicDiagnosisList != null) && (chronicDiagnosisList.size() != 0) ) {
                 Integer encounterId = chronicDiagnosisList.get(chronicDiagnosisList.size()-1).getEncounterId();
                 chronicDiagnosisList = chronicDiagnosisMonRepository.findByEncounterId(encounterId);
             }
@@ -56,7 +56,7 @@ public class ChronicDiagnosisService {
             return Result.buildError(CodeMsg.QUERY_DATA_ERROR);
         }
         List<ChronicDiagnosisDto> chronicDiagnosisDtoList = new ArrayList<>();
-        if (chronicDiagnosisList != null || chronicDiagnosisList.size() != 0) {
+        if ((chronicDiagnosisList != null) && (chronicDiagnosisList.size() != 0)) {
             for (ChronicDiagnosis cd: chronicDiagnosisList) {
                 ChronicDiagnosisDto cdd = new ChronicDiagnosisDto();
                 Diagnosis diagnosis = diagnosisMonRepository.findByDiagnosisId(cd.getDiagnosisId());
