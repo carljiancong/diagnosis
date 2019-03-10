@@ -1,15 +1,12 @@
 package com.harmonycloud.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.harmonycloud.bo.AttendingDiagnosisNewAndOldList;
 import com.harmonycloud.bo.ChronicDiagnosisNewAndOldList;
 import com.harmonycloud.entity.AttendingDiagnosis;
 import com.harmonycloud.entity.ChronicDiagnosis;
-import com.harmonycloud.entity.Diagnosis;
 import com.harmonycloud.monRepository.DiagnosisMonRepository;
 import com.harmonycloud.result.CodeMsg;
 import com.harmonycloud.result.Result;
-import com.harmonycloud.rocketmq.Producer;
 import com.harmonycloud.service.AttendingDiagnosisService;
 import com.harmonycloud.service.ChronicDiagnosisService;
 import com.harmonycloud.service.DiagnosisService;
@@ -18,15 +15,16 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;
-import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.remoting.exception.RemotingException;
+import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+
 import java.io.UnsupportedEncodingException;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @Api(tags = "Diagnosis")
@@ -44,10 +42,6 @@ public class DiagnosisController {
     @Autowired
     DiagnosisMonRepository diagnosisMonRepository;
 
-//    public String saveProblem( Diagnosis diagnosis) {
-//        diagnosisMonRepository.save(diagnosis);
-//        return "a";
-//    }
 
     @ApiOperation(value = "search problem by keyword", httpMethod = "GET")
     @ApiImplicitParam(name = "keyword", value = "keyword", paramType = "query", dataType = "String")
@@ -57,27 +51,6 @@ public class DiagnosisController {
             return diagnosisService.searchByKeyword(keyword);
         }
         return Result.buildError(CodeMsg.PARAM_ERROR);
-    }
-
-    @ApiOperation(value = "save patient attending problem list", httpMethod = "POST")
-    @ApiImplicitParam(name = "attendingDiagnosisList", value = "attendingDiagnosisList", dataType = "AttendingDiagnosis")
-    @PostMapping("/attendingDiagnosis")
-    public Result setAttendingProblem(@RequestBody List<AttendingDiagnosis> attendingDiagnosisList) {
-        try {
-            Result result = attendingDiagnosisService.setAttendingProblem(attendingDiagnosisList);
-            return result;
-        }catch (Exception e) {
-            e.printStackTrace();
-            return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
-        }
-    }
-
-    @ApiOperation(value = "update patient attending problem list", httpMethod = "POST")
-    @ApiImplicitParam(name = "attendingDiagnosisNewAndOldList", value = "attendingDiagnosisNewAndOldList", dataType = "AttendingDiagnosisNewAndOldList")
-    @PostMapping("/attendingDiagnosisUpdate")
-    public Result updateAttendingProblemList(@RequestBody AttendingDiagnosisNewAndOldList attendingDiagnosisNewAndOldList) {
-        return attendingDiagnosisService.updateAttendingProblemList(attendingDiagnosisNewAndOldList.getNewAttendingDiagnosisList(),
-                attendingDiagnosisNewAndOldList.getOldAttendingDiagnosisList());
     }
 
     @ApiOperation(value = "get patient attending problem list", httpMethod = "GET")
@@ -90,27 +63,6 @@ public class DiagnosisController {
         return attendingDiagnosisService.getPatientDiagnosisList(encounterId);
     }
 
-    @ApiOperation(value = "save chronic problem ", httpMethod = "POST")
-    @ApiImplicitParam(name = "chronicDiagnosisList", value = "chronicDiagnosisList", dataType = "ChronicDiagnosis")
-    @PostMapping("/chronicProblem")
-    public Result setChronicProblem(@RequestBody List<ChronicDiagnosis> chronicDiagnosisList) {
-        try {
-            Result result = chronicDiagnosisService.setChronicProblem(chronicDiagnosisList);
-            return result;
-        }catch (Exception e) {
-            e.printStackTrace();
-            return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
-        }
-    }
-
-    @ApiOperation(value = "update chronic problem list", httpMethod = "POST")
-    @ApiImplicitParam(name = "chronicDiagnosisNewAndOldList", value = "chronicDiagnosisNewAndOldList", dataType = "ChronicDiagnosisNewAndOldList")
-    @PostMapping("/chronicProblemUpdate")
-    public Result updateChronicProblemList(@RequestBody ChronicDiagnosisNewAndOldList chronicDiagnosisNewAndOldList) {
-        return chronicDiagnosisService.updateChronicProblemList(chronicDiagnosisNewAndOldList.getNewChronicDiagnosisList(),
-                chronicDiagnosisNewAndOldList.getOldChronicDiagnosisList());
-    }
-
     @ApiOperation(value = "get chronic problem list", httpMethod = "GET")
     @ApiImplicitParam(name = "patientId", value = "patientId", paramType = "query", dataType = "Integer")
     @GetMapping("/chronicProblemList")
@@ -119,6 +71,54 @@ public class DiagnosisController {
             return Result.buildError(CodeMsg.PARAM_ERROR);
         }
         return chronicDiagnosisService.getPatientChronicProblemList(patientId);
+    }
+
+
+    @PostMapping(path = "/saveAttendingDiagnosis", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Compensable(compensationMethod = "saveAttendingCancel", timeout = 10)
+    @Transactional(rollbackFor = Exception.class)
+    public Result setAttendingProblem(@RequestBody List<AttendingDiagnosis> attendingDiagnosisList) throws InterruptedException, RemotingException, MQClientException, MQBrokerException, UnsupportedEncodingException {
+        return attendingDiagnosisService.setAttendingProblem(attendingDiagnosisList);
+    }
+
+    public void saveAttendingCancel(List<AttendingDiagnosis> attendingDiagnosisList) {
+        try {
+            attendingDiagnosisService.setAttendingProblemCancel(attendingDiagnosisList);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @PostMapping(path = "/updateAttendingDiagnosis", consumes = MediaType.APPLICATION_JSON_VALUE)
+//    @Compensable(compensationMethod = "saveClinicalNoteCancel", timeout = 10)
+    @Transactional(rollbackFor = Exception.class)
+    public Result updateAttendingProblemList(@RequestBody AttendingDiagnosisNewAndOldList attendingDiagnosisNewAndOldList) {
+        return attendingDiagnosisService.updateAttendingProblemList(attendingDiagnosisNewAndOldList.getNewAttendingDiagnosisList(),
+                attendingDiagnosisNewAndOldList.getOldAttendingDiagnosisList());
+    }
+
+
+    @PostMapping(path = "/saveChronicProblem", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Compensable(compensationMethod = "saveChronicCancel", timeout = 10)
+    @Transactional(rollbackFor = Exception.class)
+    public Result setChronicProblem(@RequestBody List<ChronicDiagnosis> chronicDiagnosisList) throws Exception {
+        return chronicDiagnosisService.setChronicProblem(chronicDiagnosisList);
+    }
+
+    public void saveChronicCancel(List<ChronicDiagnosis> chronicDiagnosisList) {
+        try {
+            chronicDiagnosisService.setChronicProblemCancel(chronicDiagnosisList);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @PostMapping(path = "/updateChronicProblem", consumes = MediaType.APPLICATION_JSON_VALUE)
+//    @Compensable(compensationMethod = "saveClinicalNoteCancel", timeout = 10)
+    @Transactional(rollbackFor = Exception.class)
+    public Result updateChronicProblemList(@RequestBody ChronicDiagnosisNewAndOldList chronicDiagnosisNewAndOldList) {
+        return chronicDiagnosisService.updateChronicProblemList(chronicDiagnosisNewAndOldList.getNewChronicDiagnosisList(),
+                chronicDiagnosisNewAndOldList.getOldChronicDiagnosisList());
     }
 
 

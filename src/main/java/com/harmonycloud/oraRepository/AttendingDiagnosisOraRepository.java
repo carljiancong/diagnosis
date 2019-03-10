@@ -13,4 +13,5 @@ import java.util.List;
 @Repository
 public interface AttendingDiagnosisOraRepository extends JpaRepository<AttendingDiagnosis,Integer> {
         List<AttendingDiagnosis> findByPatientId(Integer patientId);
+        List<AttendingDiagnosis> findByEncounterId(Integer encounterId);
 }

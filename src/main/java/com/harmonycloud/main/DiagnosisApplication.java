@@ -1,5 +1,6 @@
 package com.harmonycloud.main;
 
+import org.apache.servicecomb.saga.omega.spring.EnableOmega;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -14,6 +15,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableMongoRepositories("com.harmonycloud.monRepository")
 @EnableJpaRepositories("com.harmonycloud.oraRepository")
 @EntityScan("com.harmonycloud.entity")
+@EnableOmega
 public class DiagnosisApplication {
 
     public static void main(String[] args) {
