@@ -34,7 +34,7 @@ public class DiagnosisService {
             Diagnosis diagnose = diagnosisMonRepository.findByDiagnosisId(keywordNum);
             diagnosesList.add(diagnose);
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
         return Result.buildSuccess(diagnosesList);
     }
