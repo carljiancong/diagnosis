@@ -28,9 +28,10 @@ public class DiagnosisService {
 
     public Result searchByKeyword(String keyword) {
         List<Diagnosis> diagnosesList = new ArrayList<>();
-        //Query query = TextQuery(new TextCriteria().matchingAny("小张", "小李")).sortByScore();
+        Query query = new TextQuery(new TextCriteria().matchingAny(keyword)).sortByScore();
+        List<Diagnosis> diagnoses = mongoTemplate.find(query, Diagnosis.class);
 
-        List<Diagnosis> diagnoses = diagnosisMonRepository.findByDiagnosisDescriptionMatchesRegex(keyword);
+        //diagnoses = diagnosisMonRepository.findByDiagnosisDescriptionMatchesRegex(keyword);
 
         if (diagnoses != null && diagnoses.size() != 0) {
             diagnosesList.addAll(diagnoses);
