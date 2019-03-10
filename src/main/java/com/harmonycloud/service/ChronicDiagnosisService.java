@@ -112,9 +112,11 @@ public class ChronicDiagnosisService {
         } catch(Exception e) {
             return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
         }
-
+        Integer encounterId = null;
+        if (chronicDiagnosisOldList != null && chronicDiagnosisOldList.size() != 0) {
+            encounterId = chronicDiagnosisOldList.get(0).getEncounterId();
+        }
         //用mongo查，不够快。mq还没消费成功，就去请求了
-        Integer encounterId = chronicDiagnosisOldList.get(0).getEncounterId();
         List<ChronicDiagnosis> ChronicDiagnosisList = chronicDiagnosisOraRepository.findByEncounterId(encounterId);
 
         Set<String> cdlNewSet = new HashSet<>();

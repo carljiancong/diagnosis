@@ -4,6 +4,10 @@ import com.harmonycloud.entity.Diagnosis;
 import com.harmonycloud.monRepository.DiagnosisMonRepository;
 import com.harmonycloud.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.TextCriteria;
+import org.springframework.data.mongodb.core.query.TextQuery;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,9 +23,13 @@ public class DiagnosisService {
     @Autowired
     DiagnosisMonRepository diagnosisMonRepository;
 
+    @Autowired
+    MongoTemplate mongoTemplate;
 
     public Result searchByKeyword(String keyword) {
         List<Diagnosis> diagnosesList = new ArrayList<>();
+        //Query query = TextQuery(new TextCriteria().matchingAny("小张", "小李")).sortByScore();
+
         List<Diagnosis> diagnoses = diagnosisMonRepository.findByDiagnosisDescriptionMatchesRegex(keyword);
 
         if (diagnoses != null && diagnoses.size() != 0) {

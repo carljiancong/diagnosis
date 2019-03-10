@@ -134,9 +134,11 @@ public class AttendingDiagnosisService {
         } catch(Exception e) {
             return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
         }
-
+        Integer encounterId = null;
+        if (attendingDiagnosisOldList != null && attendingDiagnosisOldList.size() != 0) {
+            encounterId = attendingDiagnosisOldList.get(0).getEncounterId();
+        }
         //用mongo查，不够快。mq还没消费成功，就去请求了
-        Integer encounterId = attendingDiagnosisOldList.get(0).getEncounterId();
         List<AttendingDiagnosis> attendingDiagnosisList = attendingDiagnosisOraRepository.findByEncounterId(encounterId);
 //        Set<String> adlSet = new HashSet<>();
 //        for (AttendingDiagnosis ad: attendingDiagnosisList) {
