@@ -2,7 +2,6 @@ package com.harmonycloud.service;
 
 import com.alibaba.fastjson.JSON;
 import com.harmonycloud.dto.ChronicDiagnosisDto;
-import com.harmonycloud.entity.AttendingDiagnosis;
 import com.harmonycloud.entity.ChronicDiagnosis;
 import com.harmonycloud.entity.Diagnosis;
 import com.harmonycloud.monRepository.ChronicDiagnosisMonRepository;
@@ -11,17 +10,10 @@ import com.harmonycloud.oraRepository.ChronicDiagnosisOraRepository;
 import com.harmonycloud.result.CodeMsg;
 import com.harmonycloud.result.Result;
 import com.harmonycloud.rocketmq.Producer;
-
 import java.util.ArrayList;
-
-import org.apache.rocketmq.client.exception.MQBrokerException;
-import org.apache.rocketmq.client.exception.MQClientException;
-import org.apache.rocketmq.remoting.exception.RemotingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,8 +41,8 @@ public class ChronicDiagnosisService {
         List<ChronicDiagnosis> chronicDiagnosisList = null;
         try {
             chronicDiagnosisList = chronicDiagnosisMonRepository.findByPatientIdOrderByEncounterId(patientId);
-            if ((chronicDiagnosisList != null) && (chronicDiagnosisList.size() != 0)) {
-                Integer encounterId = chronicDiagnosisList.get(chronicDiagnosisList.size() - 1).getEncounterId();
+            if ((chronicDiagnosisList != null) && (chronicDiagnosisList.size() != 0) ) {
+                Integer encounterId = chronicDiagnosisList.get(chronicDiagnosisList.size()-1).getEncounterId();
                 chronicDiagnosisList = chronicDiagnosisMonRepository.findByEncounterId(encounterId);
             }
         } catch (Exception e) {
@@ -59,7 +51,7 @@ public class ChronicDiagnosisService {
         }
         List<ChronicDiagnosisDto> chronicDiagnosisDtoList = new ArrayList<>();
         if ((chronicDiagnosisList != null) && (chronicDiagnosisList.size() != 0)) {
-            for (ChronicDiagnosis cd : chronicDiagnosisList) {
+            for (ChronicDiagnosis cd: chronicDiagnosisList) {
                 ChronicDiagnosisDto cdd = new ChronicDiagnosisDto();
                 Diagnosis diagnosis = diagnosisMonRepository.findByDiagnosisId(cd.getDiagnosisId());
                 cdd.setChronicDiagnosis(cd);
@@ -85,7 +77,6 @@ public class ChronicDiagnosisService {
             for (int i = 0; i < chronicDiagnosisList.size(); i++) {
                 producer.send("ChronicTopic", "chronicPush", JSON.toJSONString(chronicDiagnosisList.get(i)));
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -110,7 +101,6 @@ public class ChronicDiagnosisService {
 
     /**
      * 与updateAttendingDiagnosis 的原理相同
-     *
      * @param chronicDiagnosisNewList
      * @param chronicDiagnosisOldList
      * @return
@@ -119,19 +109,20 @@ public class ChronicDiagnosisService {
 
         try {
             setChronicProblem(chronicDiagnosisNewList);
-        } catch (Exception e) {
+        } catch(Exception e) {
             return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
         }
 
+        //用mongo查，不够快。mq还没消费成功，就去请求了
         Integer encounterId = chronicDiagnosisOldList.get(0).getEncounterId();
-        List<ChronicDiagnosis> ChronicDiagnosisList = chronicDiagnosisMonRepository.findByEncounterId(encounterId);
+        List<ChronicDiagnosis> ChronicDiagnosisList = chronicDiagnosisOraRepository.findByEncounterId(encounterId);
 
         Set<String> cdlNewSet = new HashSet<>();
-        for (ChronicDiagnosis cd : chronicDiagnosisNewList) {
+        for (ChronicDiagnosis cd: chronicDiagnosisNewList) {
             cdlNewSet.add(cd.toString());
         }
         try {
-            for (ChronicDiagnosis cd : ChronicDiagnosisList) {
+            for (ChronicDiagnosis cd: ChronicDiagnosisList) {
                 if (cdlNewSet.contains(cd.toString()) == false) {
                     chronicDiagnosisOraRepository.delete(cd);
                 }
@@ -141,13 +132,19 @@ public class ChronicDiagnosisService {
             return Result.buildError(CodeMsg.DELETE_DATA_ERROR);
         }
 
-
-        for (ChronicDiagnosis cd : ChronicDiagnosisList) {
-            if (cdlNewSet.contains(cd.toString()) == false) {
-                chronicDiagnosisMonRepository.delete(cd);
+        try {
+            for (ChronicDiagnosis cd: ChronicDiagnosisList) {
+                if (cdlNewSet.contains(cd.toString()) == false) {
+                    producer.send("ChronicTopicDel", "chronicPushDel", JSON.toJSONString(cd));
+                    //chronicDiagnosisMonRepository.delete(cd);
+                }
             }
+        } catch(Exception e) {
+            e.printStackTrace();
+            return Result.buildError(CodeMsg.DELETE_DATA_ERROR);
         }
-        return Result.buildSuccess("save chronic problem success");
+
+        return Result.buildSuccess("save success");
 
     }
 }

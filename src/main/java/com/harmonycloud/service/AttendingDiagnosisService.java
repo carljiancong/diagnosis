@@ -46,8 +46,7 @@ public class AttendingDiagnosisService {
     Producer producer;
 
     /**
-     * 先将数据保存到oracle中，保存成功后，将数据通过rocketmq消费到mongodb中
-     *
+     *  先将数据保存到oracle中，保存成功后，将数据通过rocketmq消费到mongodb中
      * @param attendingDiagnosisList
      * @return
      */
@@ -92,7 +91,6 @@ public class AttendingDiagnosisService {
 
     /**
      * 通过 encounter id查到到最近一次到医院的就诊记录
-     *
      * @param encounterId
      * @return
      */
@@ -110,8 +108,8 @@ public class AttendingDiagnosisService {
             return Result.buildError(CodeMsg.QUERY_DATA_ERROR);
         }
         List<AttendingDiagnosisDto> addList = new ArrayList<>();
-        if ((attendingDiagnosisList != null) && (attendingDiagnosisList.size() != 0)) {
-            for (AttendingDiagnosis ad : attendingDiagnosisList) {
+        if((attendingDiagnosisList != null) && (attendingDiagnosisList.size() != 0)) {
+            for (AttendingDiagnosis ad: attendingDiagnosisList) {
                 AttendingDiagnosisDto add = new AttendingDiagnosisDto();
                 Diagnosis diagnosis = diagnosisMonRepository.findByDiagnosisId(ad.getDiagnosisId());
                 add.setAttendingDiagnosis(ad);
@@ -125,7 +123,6 @@ public class AttendingDiagnosisService {
     /**
      * oldList里的encounterId都是一定的，取其中encounterId。在数据库找出encounterId下的所有数据，
      * 让oldList与数据库中的值对比，若没有一处不同，则可以更新，否则更新失败。
-     *
      * @param attendingDiagnosisNewList
      * @param attendingDiagnosisOldList
      * @return
@@ -134,11 +131,13 @@ public class AttendingDiagnosisService {
                                              List<AttendingDiagnosis> attendingDiagnosisOldList) {
         try {
             setAttendingProblem(attendingDiagnosisNewList);
-        } catch (Exception e) {
+        } catch(Exception e) {
             return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
         }
+
+        //用mongo查，不够快。mq还没消费成功，就去请求了
         Integer encounterId = attendingDiagnosisOldList.get(0).getEncounterId();
-        List<AttendingDiagnosis> attendingDiagnosisList = attendingDiagnosisMonRepository.findByEncounterId(encounterId);
+        List<AttendingDiagnosis> attendingDiagnosisList = attendingDiagnosisOraRepository.findByEncounterId(encounterId);
 //        Set<String> adlSet = new HashSet<>();
 //        for (AttendingDiagnosis ad: attendingDiagnosisList) {
 //            adlSet.add(ad.toString());
@@ -150,11 +149,11 @@ public class AttendingDiagnosisService {
 //            }
 //        }
         Set<String> adlNewSet = new HashSet<>();
-        for (AttendingDiagnosis ad : attendingDiagnosisNewList) {
+        for (AttendingDiagnosis ad: attendingDiagnosisNewList) {
             adlNewSet.add(ad.toString());
         }
         try {
-            for (AttendingDiagnosis ad : attendingDiagnosisList) {
+            for (AttendingDiagnosis ad :attendingDiagnosisList) {
                 if (adlNewSet.contains(ad.toString()) == false) {
                     attendingDiagnosisOraRepository.delete(ad);
                 }
@@ -163,11 +162,17 @@ public class AttendingDiagnosisService {
             e.printStackTrace();
             return Result.buildError(CodeMsg.DELETE_DATA_ERROR);
         }
-        for (AttendingDiagnosis ad : attendingDiagnosisList) {
-            if (adlNewSet.contains(ad.toString()) == false) {
-                attendingDiagnosisMonRepository.delete(ad);
+        try{
+            for (AttendingDiagnosis ad :attendingDiagnosisList) {
+                if (adlNewSet.contains(ad.toString()) == false) {
+                    //attendingDiagnosisMonRepository.delete(ad);
+                    producer.send("AttendingTopic", "attendingPush", JSON.toJSONString(ad));
+                }
             }
+        } catch(Exception e) {
+            e.printStackTrace();
         }
-        return Result.buildSuccess("save attending problem success");
+
+        return Result.buildSuccess("save success");
     }
 }
