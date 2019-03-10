@@ -10,6 +10,7 @@ import com.harmonycloud.oraRepository.AttendingDiagnosisOraRepository;
 import com.harmonycloud.result.CodeMsg;
 import com.harmonycloud.result.Result;
 import com.harmonycloud.rocketmq.Producer;
+import org.omg.CORBA.CODESET_INCOMPATIBLE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +48,7 @@ public class AttendingDiagnosisService {
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Result setAttendingProblem(List<AttendingDiagnosis> attendingDiagnosisList) {
+    public Result setAttendingProblem(List<AttendingDiagnosis> attendingDiagnosisList) throws Exception{
         try {
             for (int i = 0; i < attendingDiagnosisList.size(); i++) {
                 AttendingDiagnosis attendingDiagnosis = attendingDiagnosisList.get(i);
@@ -64,7 +65,8 @@ public class AttendingDiagnosisService {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
+            throw e;
+            //return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
         }
         return Result.buildSuccess("save success");
     }
@@ -109,18 +111,42 @@ public class AttendingDiagnosisService {
      */
     public Result updateAttendingProblemList(List<AttendingDiagnosis> attendingDiagnosisNewList,
                                              List<AttendingDiagnosis> attendingDiagnosisOldList) {
+        try {
+            setAttendingProblem(attendingDiagnosisNewList);
+        } catch(Exception e) {
+            return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
+        }
         Integer encounterId = attendingDiagnosisOldList.get(0).getEncounterId();
         List<AttendingDiagnosis> attendingDiagnosisList = attendingDiagnosisMonRepository.findByEncounterId(encounterId);
-        Set<String> adlSet = new HashSet<>();
-        for (AttendingDiagnosis ad: attendingDiagnosisList) {
-            adlSet.add(ad.toString());
+//        Set<String> adlSet = new HashSet<>();
+//        for (AttendingDiagnosis ad: attendingDiagnosisList) {
+//            adlSet.add(ad.toString());
+//        }
+//
+//        for (AttendingDiagnosis ad: attendingDiagnosisOldList) {
+//            if (adlSet.contains(ad.toString()) == false) {
+//                return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
+//            }
+//        }
+        Set<String> adlNewSet = new HashSet<>();
+        for (AttendingDiagnosis ad: attendingDiagnosisNewList) {
+            adlNewSet.add(ad.toString());
         }
-
-        for (AttendingDiagnosis ad: attendingDiagnosisOldList) {
-            if (adlSet.contains(ad.toString()) == false) {
-                return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
+        try {
+            for (AttendingDiagnosis ad :attendingDiagnosisList) {
+                if (adlNewSet.contains(ad.toString()) == false) {
+                    attendingDiagnosisOraRepository.delete(ad);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.buildError(CodeMsg.DELETE_DATA_ERROR);
+        }
+        for (AttendingDiagnosis ad :attendingDiagnosisList) {
+            if (adlNewSet.contains(ad.toString()) == false) {
+                attendingDiagnosisMonRepository.delete(ad);
             }
         }
-        return setAttendingProblem(attendingDiagnosisNewList);
+        return Result.buildSuccess("save success");
     }
 }

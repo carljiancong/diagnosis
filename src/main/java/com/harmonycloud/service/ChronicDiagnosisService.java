@@ -69,7 +69,7 @@ public class ChronicDiagnosisService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public Result setChronicProblem(List<ChronicDiagnosis> chronicDiagnosisList) {
+    public Result setChronicProblem(List<ChronicDiagnosis> chronicDiagnosisList) throws Exception{
         try {
             for (int i = 0; i < chronicDiagnosisList.size(); i++) {
                 ChronicDiagnosis chronicDiagnosis = chronicDiagnosisList.get(i);
@@ -78,7 +78,7 @@ public class ChronicDiagnosisService {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
+            throw e;
         }
         try {
             for (int i = 0; i < chronicDiagnosisList.size(); i++) {
@@ -86,7 +86,7 @@ public class ChronicDiagnosisService {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
+            throw e;
         }
         return Result.buildSuccess("save success");
     }
@@ -98,18 +98,38 @@ public class ChronicDiagnosisService {
      * @return
      */
     public Result updateChronicProblemList(List<ChronicDiagnosis> chronicDiagnosisNewList, List<ChronicDiagnosis> chronicDiagnosisOldList) {
-        Integer encounterId = chronicDiagnosisOldList.get(0).getEncounterId();
-        List<ChronicDiagnosis> ChronicDiagnosisList = chronicDiagnosisMonRepository.findByEncounterId(encounterId);
-        Set<String> cdlSet = new HashSet<>();
-        for (ChronicDiagnosis cd: ChronicDiagnosisList) {
-            cdlSet.add(cd.toString());
+
+        try {
+            setChronicProblem(chronicDiagnosisNewList);
+        } catch(Exception e) {
+            return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
         }
 
+        Integer encounterId = chronicDiagnosisOldList.get(0).getEncounterId();
+        List<ChronicDiagnosis> ChronicDiagnosisList = chronicDiagnosisMonRepository.findByEncounterId(encounterId);
+
+        Set<String> cdlNewSet = new HashSet<>();
+        for (ChronicDiagnosis cd: chronicDiagnosisNewList) {
+            cdlNewSet.add(cd.toString());
+        }
+        try {
+            for (ChronicDiagnosis cd: ChronicDiagnosisList) {
+                if (cdlNewSet.contains(cd.toString()) == false) {
+                    chronicDiagnosisOraRepository.delete(cd);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.buildError(CodeMsg.DELETE_DATA_ERROR);
+        }
+
+
         for (ChronicDiagnosis cd: ChronicDiagnosisList) {
-            if (cdlSet.contains(cd.toString()) == false) {
-                return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
+            if (cdlNewSet.contains(cd.toString()) == false) {
+                chronicDiagnosisMonRepository.delete(cd);
             }
         }
-        return setChronicProblem(chronicDiagnosisNewList);
+        return Result.buildSuccess("save success");
+
     }
 }

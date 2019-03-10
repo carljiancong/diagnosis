@@ -44,8 +44,7 @@ public class DiagnosisController {
     @Autowired
     DiagnosisMonRepository diagnosisMonRepository;
 
-//    @PostMapping("/save")
-//    public String saveProblem(@RequestBody Diagnosis diagnosis) {
+//    public String saveProblem( Diagnosis diagnosis) {
 //        diagnosisMonRepository.save(diagnosis);
 //        return "a";
 //    }
@@ -64,7 +63,13 @@ public class DiagnosisController {
     @ApiImplicitParam(name = "attendingDiagnosisList", value = "attendingDiagnosisList", dataType = "AttendingDiagnosis")
     @PostMapping("/attendingDiagnosis")
     public Result setAttendingProblem(@RequestBody List<AttendingDiagnosis> attendingDiagnosisList) {
-        return attendingDiagnosisService.setAttendingProblem(attendingDiagnosisList);
+        try {
+            Result result = attendingDiagnosisService.setAttendingProblem(attendingDiagnosisList);
+            return result;
+        }catch (Exception e) {
+            e.printStackTrace();
+            return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
+        }
     }
 
     @ApiOperation(value = "update patient attending problem list", httpMethod = "POST")
@@ -89,7 +94,13 @@ public class DiagnosisController {
     @ApiImplicitParam(name = "chronicDiagnosisList", value = "chronicDiagnosisList", dataType = "ChronicDiagnosis")
     @PostMapping("/chronicProblem")
     public Result setChronicProblem(@RequestBody List<ChronicDiagnosis> chronicDiagnosisList) {
-        return chronicDiagnosisService.setChronicProblem(chronicDiagnosisList);
+        try {
+            Result result = chronicDiagnosisService.setChronicProblem(chronicDiagnosisList);
+            return result;
+        }catch (Exception e) {
+            e.printStackTrace();
+            return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
+        }
     }
 
     @ApiOperation(value = "update chronic problem list", httpMethod = "POST")
