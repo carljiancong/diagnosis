@@ -76,6 +76,40 @@ public class Consumer implements CommandLineRunner {
         }
     }
 
+    public void messageListenerDel(){
+
+        DefaultMQPushConsumer consumer=new DefaultMQPushConsumer("AttendingGroupDel");
+
+        consumer.setNamesrvAddr(namesrvAddr);
+        try {
+
+            // 订阅PushTopic下Tag为push的消息,都订阅消息
+            consumer.subscribe("AttendingTopicDel", "attendingPushDel");
+
+            // 程序第一次启动从消息队列头获取数据
+            consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
+            //可以修改每次消费消息的数量，默认设置是每次消费一条
+            consumer.setConsumeMessageBatchMaxSize(1);
+
+            //在此监听中消费信息，并返回消费的状态信息
+            consumer.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
+
+                // 会把不同的消息分别放置到不同的队列中
+                for(Message msg:msgs){
+                    AttendingDiagnosis ad = JSON.toJavaObject(JSON.parseObject(new String(msg.getBody())), AttendingDiagnosis.class);
+                    attendingDiagnosisMonRepository.delete(ad);
+                    System.out.println("接收到了消息："+new String(msg.getBody()));
+                }
+                return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+            });
+
+            consumer.start();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public void messageListenerChronic(){
 
@@ -111,9 +145,45 @@ public class Consumer implements CommandLineRunner {
         }
     }
 
+    public void messageListenerChronicDel(){
+
+        DefaultMQPushConsumer consumerChronic=new DefaultMQPushConsumer("ChronicGroupDel");
+
+        consumerChronic.setNamesrvAddr(namesrvAddr);
+        try {
+
+            // 订阅PushTopic下Tag为push的消息,都订阅消息
+            consumerChronic.subscribe("ChronicTopicDel", "chronicPushDel");
+
+            // 程序第一次启动从消息队列头获取数据
+            consumerChronic.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
+            //可以修改每次消费消息的数量，默认设置是每次消费一条
+            consumerChronic.setConsumeMessageBatchMaxSize(1);
+
+            //在此监听中消费信息，并返回消费的状态信息
+            consumerChronic.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
+
+                // 会把不同的消息分别放置到不同的队列中
+                for(Message msg:msgs){
+                    ChronicDiagnosis cd = JSON.toJavaObject(JSON.parseObject(new String(msg.getBody())), ChronicDiagnosis.class);
+                    chronicDiagnosisMonRepository.delete(cd);
+                    System.out.println("接收到了消息："+ new String(msg.getBody()));
+                }
+                return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+            });
+
+            consumerChronic.start();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void run(String... args) throws Exception {
         this.messageListener();
         this.messageListenerChronic();
+        this.messageListenerDel();
+        this.messageListenerChronicDel();
     }
 }
