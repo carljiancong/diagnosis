@@ -90,11 +90,20 @@ public class DiagnosisController {
     }
 
     @PostMapping(path = "/updateAttendingDiagnosis", consumes = MediaType.APPLICATION_JSON_VALUE)
-//    @Compensable(compensationMethod = "saveClinicalNoteCancel", timeout = 10)
+    @Compensable(compensationMethod = "updateAttendingProblemCancel", timeout = 10)
     @Transactional(rollbackFor = Exception.class)
     public Result updateAttendingProblemList(@RequestBody AttendingDiagnosisNewAndOldList attendingDiagnosisNewAndOldList) {
         return attendingDiagnosisService.updateAttendingProblemList(attendingDiagnosisNewAndOldList.getNewAttendingDiagnosisList(),
                 attendingDiagnosisNewAndOldList.getOldAttendingDiagnosisList());
+    }
+
+    public void updateAttendingProblemCancel(AttendingDiagnosisNewAndOldList attendingDiagnosisNewAndOldList) {
+        try {
+            attendingDiagnosisService.updateAttendingProblemCancel(attendingDiagnosisNewAndOldList.getNewAttendingDiagnosisList(),
+                    attendingDiagnosisNewAndOldList.getOldAttendingDiagnosisList());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -114,11 +123,20 @@ public class DiagnosisController {
     }
 
     @PostMapping(path = "/updateChronicProblem", consumes = MediaType.APPLICATION_JSON_VALUE)
-//    @Compensable(compensationMethod = "saveClinicalNoteCancel", timeout = 10)
+    @Compensable(compensationMethod = "updateChronicProblemCancel", timeout = 10)
     @Transactional(rollbackFor = Exception.class)
     public Result updateChronicProblemList(@RequestBody ChronicDiagnosisNewAndOldList chronicDiagnosisNewAndOldList) {
         return chronicDiagnosisService.updateChronicProblemList(chronicDiagnosisNewAndOldList.getNewChronicDiagnosisList(),
                 chronicDiagnosisNewAndOldList.getOldChronicDiagnosisList());
+    }
+
+    public void updateChronicProblemCancel(ChronicDiagnosisNewAndOldList chronicDiagnosisNewAndOldList) {
+        try {
+            chronicDiagnosisService.updateChronicProblemCancel(chronicDiagnosisNewAndOldList.getNewChronicDiagnosisList(),
+                    chronicDiagnosisNewAndOldList.getOldChronicDiagnosisList());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

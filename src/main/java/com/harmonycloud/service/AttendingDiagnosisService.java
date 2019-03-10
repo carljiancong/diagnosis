@@ -14,6 +14,7 @@ import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.remoting.exception.RemotingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,11 +47,12 @@ public class AttendingDiagnosisService {
     Producer producer;
 
     /**
-     *  先将数据保存到oracle中，保存成功后，将数据通过rocketmq消费到mongodb中
+     * 先将数据保存到oracle中，保存成功后，将数据通过rocketmq消费到mongodb中
+     *
      * @param attendingDiagnosisList
      * @return
      */
-//    @Transactional(rollbackFor = Exception.class)
+
     public Result setAttendingProblem(List<AttendingDiagnosis> attendingDiagnosisList) throws InterruptedException, RemotingException, UnsupportedEncodingException, MQClientException, MQBrokerException {
         try {
             for (int i = 0; i < attendingDiagnosisList.size(); i++) {
@@ -91,25 +93,21 @@ public class AttendingDiagnosisService {
 
     /**
      * 通过 encounter id查到到最近一次到医院的就诊记录
+     *
      * @param encounterId
      * @return
      */
     public Result getPatientDiagnosisList(Integer encounterId) {
         List<AttendingDiagnosis> attendingDiagnosisList = null;
         try {
-//            attendingDiagnosisList = attendingDiagnosisMonRepository.findByPatientIdOrderByEncounterId(patientId);
-//            if (attendingDiagnosisList != null || attendingDiagnosisList.size() != 0) {
-//                Integer encounterId = attendingDiagnosisList.get(attendingDiagnosisList.size()-1).getEncounterId();
-//                attendingDiagnosisList = attendingDiagnosisMonRepository.findByEncounterId(encounterId);
-//            }
             attendingDiagnosisList = attendingDiagnosisMonRepository.findByEncounterId(encounterId);
         } catch (Exception e) {
             e.printStackTrace();
             return Result.buildError(CodeMsg.QUERY_DATA_ERROR);
         }
         List<AttendingDiagnosisDto> addList = new ArrayList<>();
-        if((attendingDiagnosisList != null) && (attendingDiagnosisList.size() != 0)) {
-            for (AttendingDiagnosis ad: attendingDiagnosisList) {
+        if ((attendingDiagnosisList != null) && (attendingDiagnosisList.size() != 0)) {
+            for (AttendingDiagnosis ad : attendingDiagnosisList) {
                 AttendingDiagnosisDto add = new AttendingDiagnosisDto();
                 Diagnosis diagnosis = diagnosisMonRepository.findByDiagnosisId(ad.getDiagnosisId());
                 add.setAttendingDiagnosis(ad);
@@ -123,6 +121,7 @@ public class AttendingDiagnosisService {
     /**
      * oldList里的encounterId都是一定的，取其中encounterId。在数据库找出encounterId下的所有数据，
      * 让oldList与数据库中的值对比，若没有一处不同，则可以更新，否则更新失败。
+     *
      * @param attendingDiagnosisNewList
      * @param attendingDiagnosisOldList
      * @return
@@ -131,7 +130,7 @@ public class AttendingDiagnosisService {
                                              List<AttendingDiagnosis> attendingDiagnosisOldList) {
         try {
             setAttendingProblem(attendingDiagnosisNewList);
-        } catch(Exception e) {
+        } catch (Exception e) {
             return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
         }
         Integer encounterId = null;
@@ -140,22 +139,12 @@ public class AttendingDiagnosisService {
         }
         //用mongo查，不够快。mq还没消费成功，就去请求了
         List<AttendingDiagnosis> attendingDiagnosisList = attendingDiagnosisOraRepository.findByEncounterId(encounterId);
-//        Set<String> adlSet = new HashSet<>();
-//        for (AttendingDiagnosis ad: attendingDiagnosisList) {
-//            adlSet.add(ad.toString());
-//        }
-//
-//        for (AttendingDiagnosis ad: attendingDiagnosisOldList) {
-//            if (adlSet.contains(ad.toString()) == false) {
-//                return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
-//            }
-//        }
         Set<String> adlNewSet = new HashSet<>();
-        for (AttendingDiagnosis ad: attendingDiagnosisNewList) {
+        for (AttendingDiagnosis ad : attendingDiagnosisNewList) {
             adlNewSet.add(ad.toString());
         }
         try {
-            for (AttendingDiagnosis ad :attendingDiagnosisList) {
+            for (AttendingDiagnosis ad : attendingDiagnosisList) {
                 if (adlNewSet.contains(ad.toString()) == false) {
                     attendingDiagnosisOraRepository.delete(ad);
                 }
@@ -164,17 +153,42 @@ public class AttendingDiagnosisService {
             e.printStackTrace();
             return Result.buildError(CodeMsg.DELETE_DATA_ERROR);
         }
-        try{
-            for (AttendingDiagnosis ad :attendingDiagnosisList) {
+        try {
+            for (AttendingDiagnosis ad : attendingDiagnosisList) {
                 if (adlNewSet.contains(ad.toString()) == false) {
                     //attendingDiagnosisMonRepository.delete(ad);
                     producer.send("AttendingTopic", "attendingPush", JSON.toJSONString(ad));
                 }
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return Result.buildSuccess("save success");
+        return Result.buildSuccess("update attending problem success");
+    }
+
+
+    //    目前采用了把newList全部del，oldList全部save的操作
+    public void updateAttendingProblemCancel(List<AttendingDiagnosis> attendingDiagnosisNewList,
+                                             List<AttendingDiagnosis> attendingDiagnosisOldList) {
+        try {
+            if (attendingDiagnosisNewList != null) {
+                List<AttendingDiagnosis> attendingDiagnosisList = attendingDiagnosisOraRepository.findByEncounterId(attendingDiagnosisNewList.get(0).getEncounterId());
+                for (int i = 0; i < attendingDiagnosisList.size(); i++) {
+                    attendingDiagnosisOraRepository.delete(attendingDiagnosisList.get(i));
+                    producer.send("AttendingTopicDel", "attendingPushDel", JSON.toJSONString(attendingDiagnosisList.get(i)));
+                }
+            }
+
+            for (int i = 0; i < attendingDiagnosisOldList.size(); i++) {
+                attendingDiagnosisOraRepository.save(attendingDiagnosisOldList.get(i));
+            }
+            for (int i = 0; i < attendingDiagnosisOldList.size(); i++) {
+                producer.send("AttendingTopic", "attendingPush", JSON.toJSONString(attendingDiagnosisOldList.get(i)));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
