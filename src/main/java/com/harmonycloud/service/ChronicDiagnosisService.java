@@ -112,7 +112,9 @@ public class ChronicDiagnosisService {
     public Result updateChronicProblemList(List<ChronicDiagnosis> chronicDiagnosisNewList, List<ChronicDiagnosis> chronicDiagnosisOldList) {
 
         try {
-            setChronicProblem(chronicDiagnosisNewList);
+            if (chronicDiagnosisNewList != null && chronicDiagnosisNewList.size() != 0) {
+                setChronicProblem(chronicDiagnosisNewList);
+            }
         } catch (Exception e) {
             return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
         }
@@ -124,8 +126,10 @@ public class ChronicDiagnosisService {
         List<ChronicDiagnosis> ChronicDiagnosisList = chronicDiagnosisOraRepository.findByEncounterId(encounterId);
 
         Set<String> cdlNewSet = new HashSet<>();
-        for (ChronicDiagnosis cd : chronicDiagnosisNewList) {
-            cdlNewSet.add(cd.toString());
+        if (chronicDiagnosisNewList != null && chronicDiagnosisNewList.size() != 0) {
+            for (ChronicDiagnosis cd : chronicDiagnosisNewList) {
+                cdlNewSet.add(cd.toString());
+            }
         }
         try {
             for (ChronicDiagnosis cd : ChronicDiagnosisList) {

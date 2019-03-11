@@ -129,7 +129,9 @@ public class AttendingDiagnosisService {
     public Result updateAttendingProblemList(List<AttendingDiagnosis> attendingDiagnosisNewList,
                                              List<AttendingDiagnosis> attendingDiagnosisOldList) {
         try {
-            setAttendingProblem(attendingDiagnosisNewList);
+            if (attendingDiagnosisNewList != null && attendingDiagnosisNewList.size() != 0) {
+                setAttendingProblem(attendingDiagnosisNewList);
+            }
         } catch (Exception e) {
             return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
         }
@@ -140,8 +142,10 @@ public class AttendingDiagnosisService {
         //用mongo查，不够快。mq还没消费成功，就去请求了
         List<AttendingDiagnosis> attendingDiagnosisList = attendingDiagnosisOraRepository.findByEncounterId(encounterId);
         Set<String> adlNewSet = new HashSet<>();
-        for (AttendingDiagnosis ad : attendingDiagnosisNewList) {
-            adlNewSet.add(ad.toString());
+        if (attendingDiagnosisNewList != null && attendingDiagnosisNewList.size() != 0) {
+            for (AttendingDiagnosis ad : attendingDiagnosisNewList) {
+                adlNewSet.add(ad.toString());
+            }
         }
         try {
             for (AttendingDiagnosis ad : attendingDiagnosisList) {
@@ -157,7 +161,7 @@ public class AttendingDiagnosisService {
             for (AttendingDiagnosis ad : attendingDiagnosisList) {
                 if (adlNewSet.contains(ad.toString()) == false) {
                     //attendingDiagnosisMonRepository.delete(ad);
-                    producer.send("AttendingTopic", "attendingPush", JSON.toJSONString(ad));
+                    producer.send("AttendingTopicDel", "attendingPushDel", JSON.toJSONString(ad));
                 }
             }
         } catch (Exception e) {
