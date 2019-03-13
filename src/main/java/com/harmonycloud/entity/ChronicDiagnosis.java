@@ -81,11 +81,9 @@ public class ChronicDiagnosis {
     @Override
     public String toString() {
         return "ChronicDiagnosis{" +
-                "chronicDiagnosisId=" + chronicDiagnosisId +
                 ", diagnosisId=" + diagnosisId +
                 ", patientId=" + patientId +
                 ", encounterId=" + encounterId +
-                ", status='" + status + '\'' +
                 '}';
     }
 }

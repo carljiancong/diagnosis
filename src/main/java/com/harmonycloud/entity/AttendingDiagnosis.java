@@ -70,7 +70,6 @@ public class AttendingDiagnosis {
     @Override
     public String toString() {
         return "AttendingDiagnosis{" +
-                "attendingDiagnosisId=" + attendingDiagnosisId +
                 ", diagnosisId=" + diagnosisId +
                 ", patientId=" + patientId +
                 ", encounterId=" + encounterId +

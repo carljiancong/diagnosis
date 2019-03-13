@@ -93,8 +93,13 @@ public class DiagnosisController {
     @Compensable(compensationMethod = "updateAttendingProblemCancel", timeout = 10)
     @Transactional(rollbackFor = Exception.class)
     public Result updateAttendingProblemList(@RequestBody AttendingDiagnosisNewAndOldList attendingDiagnosisNewAndOldList) {
-        return attendingDiagnosisService.updateAttendingProblemList(attendingDiagnosisNewAndOldList.getNewAttendingDiagnosisList(),
-                attendingDiagnosisNewAndOldList.getOldAttendingDiagnosisList());
+        try {
+            return attendingDiagnosisService.updateAttendingProblemList(attendingDiagnosisNewAndOldList.getNewAttendingDiagnosisList(),
+                    attendingDiagnosisNewAndOldList.getOldAttendingDiagnosisList());
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return Result.buildError(CodeMsg.UPDATE_DATA_ERROR);
     }
 
     public void updateAttendingProblemCancel(AttendingDiagnosisNewAndOldList attendingDiagnosisNewAndOldList) {
@@ -126,8 +131,13 @@ public class DiagnosisController {
     @Compensable(compensationMethod = "updateChronicProblemCancel", timeout = 10)
     @Transactional(rollbackFor = Exception.class)
     public Result updateChronicProblemList(@RequestBody ChronicDiagnosisNewAndOldList chronicDiagnosisNewAndOldList) {
-        return chronicDiagnosisService.updateChronicProblemList(chronicDiagnosisNewAndOldList.getNewChronicDiagnosisList(),
-                chronicDiagnosisNewAndOldList.getOldChronicDiagnosisList());
+        try {
+            return chronicDiagnosisService.updateChronicProblemList(chronicDiagnosisNewAndOldList.getNewChronicDiagnosisList(),
+                    chronicDiagnosisNewAndOldList.getOldChronicDiagnosisList());
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return Result.buildError(CodeMsg.UPDATE_DATA_ERROR);
     }
 
     public void updateChronicProblemCancel(ChronicDiagnosisNewAndOldList chronicDiagnosisNewAndOldList) {

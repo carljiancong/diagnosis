@@ -17,7 +17,7 @@ public class CodeMsg {
     public static CodeMsg SAVE_DATA_FAIL = new CodeMsg("save data fail");
     public static CodeMsg QUERY_DATA_ERROR = new CodeMsg("query data error");
     public static CodeMsg DELETE_DATA_ERROR = new CodeMsg("delete data error");
-
+    public static CodeMsg UPDATE_DATA_ERROR = new CodeMsg("update data error");
 
     public String getMsg() {
         return msg;
