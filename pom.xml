@@ -149,7 +149,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>diagnosis</finalName>
+        <finalName>ROOT</finalName>
     </build>
 
 </project>
