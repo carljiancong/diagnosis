@@ -10,27 +10,38 @@
     </parent>
     <groupId>com.harmonycloud</groupId>
     <artifactId>diagnosis</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
     <name>diagnosis</name>
     <description>Demo project for Spring Boot</description>
 
+    <packaging>war</packaging>
     <properties>
         <java.version>1.8</java.version>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>thirdparty</id>
-            <url>http://10.10.102.101:8081/nexus/content/repositories/thirdparty/</url>
-        </repository>
-    </repositories>
+    <!--<repositories>-->
+        <!--<repository>-->
+            <!--<id>thirdparty</id>-->
+            <!--<url>http://10.10.102.101:8081/nexus/content/repositories/thirdparty/</url>-->
+        <!--</repository>-->
+    <!--</repositories>-->
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -50,8 +61,8 @@
         </dependency>
         <dependency>
             <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
-            <version>11.2.0.3.0</version>
+            <artifactId>ojdbc8</artifactId>
+            <version>12.2.0.1</version>
         </dependency>
         <!--token-->
         <dependency>
@@ -104,6 +115,7 @@
             <version>1.2.29</version>
         </dependency>
 
+
         <!--excel-->
         <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
         <dependency>
@@ -127,6 +139,7 @@
             <artifactId>omega-transport-resttemplate</artifactId>
             <version>0.2.1</version>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -136,6 +149,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
+        <finalName>diagnosis</finalName>
     </build>
 
 </project>
