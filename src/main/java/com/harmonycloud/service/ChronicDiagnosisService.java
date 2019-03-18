@@ -89,15 +89,11 @@ public class ChronicDiagnosisService {
     }
 
     public void setChronicProblemCancel(List<ChronicDiagnosis> chronicDiagnosisList) {
-        List<ChronicDiagnosis> chronicDiagnosisList1 = null;
+        List<ChronicDiagnosis> newChronicDiagnosisList = null;
         try {
-            chronicDiagnosisList1 = chronicDiagnosisOraRepository.findByEncounterId(chronicDiagnosisList1.get(0).getEncounterId());
-            for (int i = 0; i < chronicDiagnosisList.size(); i++) {
-                chronicDiagnosisOraRepository.delete(chronicDiagnosisList1.get(i));
-            }
-            for (int i = 0; i < chronicDiagnosisList.size(); i++) {
-                producer.send("ChronicTopicDel", "chronicPushDel", JSON.toJSONString(chronicDiagnosisList1.get(i)));
-            }
+            newChronicDiagnosisList = chronicDiagnosisOraRepository.findByEncounterId(chronicDiagnosisList.get(0).getEncounterId());
+            chronicDiagnosisOraRepository.deleteAll(newChronicDiagnosisList);
+            rocketmqService.deleteChronic(newChronicDiagnosisList);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -110,59 +106,12 @@ public class ChronicDiagnosisService {
      * @param chronicDiagnosisOldList
      * @return
      */
-    public Result updateChronicProblemList(List<ChronicDiagnosis> chronicDiagnosisNewList, List<ChronicDiagnosis> chronicDiagnosisOldList) throws Exception{
-
-//        try {
-//            if (chronicDiagnosisNewList != null && chronicDiagnosisNewList.size() != 0) {
-//                setChronicProblem(chronicDiagnosisNewList);
-//            }
-//        } catch (Exception e) {
-//            return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
-//        }
-//        Integer encounterId = null;
-//        if (chronicDiagnosisOldList != null && chronicDiagnosisOldList.size() != 0) {
-//            encounterId = chronicDiagnosisOldList.get(0).getEncounterId();
-//        }
-//        //用mongo查，不够快。mq还没消费成功，就去请求了
-//        List<ChronicDiagnosis> ChronicDiagnosisList = chronicDiagnosisOraRepository.findByEncounterId(encounterId);
-//
-//        Set<String> cdlNewSet = new HashSet<>();
-//        if (chronicDiagnosisNewList != null && chronicDiagnosisNewList.size() != 0) {
-//            for (ChronicDiagnosis cd : chronicDiagnosisNewList) {
-//                cdlNewSet.add(cd.toString());
-//            }
-//        }
-//        try {
-//            for (ChronicDiagnosis cd : ChronicDiagnosisList) {
-//                if (cdlNewSet.contains(cd.toString()) == false) {
-//                    chronicDiagnosisOraRepository.delete(cd);
-//                }
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return Result.buildError(CodeMsg.DELETE_DATA_ERROR);
-//        }
-//
-//        try {
-//            for (ChronicDiagnosis cd : ChronicDiagnosisList) {
-//                if (cdlNewSet.contains(cd.toString()) == false) {
-//                    producer.send("ChronicTopicDel", "chronicPushDel", JSON.toJSONString(cd));
-//                    //chronicDiagnosisMonRepository.delete(cd);
-//                }
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return Result.buildError(CodeMsg.DELETE_DATA_ERROR);
-//        }
-//
-//        return Result.buildSuccess("save success");
-
+    public Result updateChronicProblemList(List<ChronicDiagnosis> chronicDiagnosisNewList, List<ChronicDiagnosis> chronicDiagnosisOldList) throws Exception {
         if (chronicDiagnosisNewList != null && chronicDiagnosisNewList.size() != 0) {
             Set<String> cdlNewSet = new HashSet<>();
             for (int i = 0; i < chronicDiagnosisNewList.size(); i++) {
                 if (cdlNewSet.contains(chronicDiagnosisNewList.get(i).toString())) {
                     throw new Exception("update data fail");
-                    //return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
                 }
                 cdlNewSet.add(chronicDiagnosisNewList.get(i).toString());
             }
@@ -193,20 +142,15 @@ public class ChronicDiagnosisService {
 
             if (chronicDiagnosisNewList != null) {
                 List<ChronicDiagnosis> chronicDiagnosisList = chronicDiagnosisOraRepository.findByEncounterId(chronicDiagnosisNewList.get(0).getEncounterId());
-                for (int i = 0; i < chronicDiagnosisList.size(); i++) {
-                    chronicDiagnosisOraRepository.delete(chronicDiagnosisList.get(i));
-                    producer.send("ChronicTopicDel", "chronicPushDel", JSON.toJSONString(chronicDiagnosisList.get(i)));
-                }
+                chronicDiagnosisOraRepository.deleteAll(chronicDiagnosisList);
+                rocketmqService.deleteChronic(chronicDiagnosisList);
             }
-            for (int i = 0; i < chronicDiagnosisOldList.size(); i++) {
-                chronicDiagnosisOraRepository.save(chronicDiagnosisOldList.get(i));
-            }
-            for (int i = 0; i < chronicDiagnosisOldList.size(); i++) {
-                producer.send("ChronicTopic", "chronicPush", JSON.toJSONString(chronicDiagnosisOldList.get(i)));
+            chronicDiagnosisOraRepository.saveAll(chronicDiagnosisOldList);
+            rocketmqService.saveChronic(chronicDiagnosisOldList);
+        } catch (
+                Exception e)
 
-            }
-
-        } catch (Exception e) {
+        {
             e.printStackTrace();
 
         }

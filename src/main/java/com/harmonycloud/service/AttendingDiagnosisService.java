@@ -77,15 +77,11 @@ public class AttendingDiagnosisService {
     }
 
     public void setAttendingProblemCancel(List<AttendingDiagnosis> attendingDiagnosisList) {
-        List<AttendingDiagnosis> attendingDiagnosisList1 = null;
+        List<AttendingDiagnosis> newAttendingDiagnosisList = null;
         try {
-            attendingDiagnosisList1 = attendingDiagnosisOraRepository.findByEncounterId(attendingDiagnosisList.get(0).getEncounterId());
-            for (int i = 0; i < attendingDiagnosisList.size(); i++) {
-                attendingDiagnosisOraRepository.delete(attendingDiagnosisList1.get(i));
-            }
-            for (int i = 0; i < attendingDiagnosisList.size(); i++) {
-                producer.send("AttendingTopicDel", "attendingPushDel", JSON.toJSONString(attendingDiagnosisList1.get(i)));
-            }
+            newAttendingDiagnosisList = attendingDiagnosisOraRepository.findByEncounterId(attendingDiagnosisList.get(0).getEncounterId());
+            attendingDiagnosisOraRepository.deleteAll(newAttendingDiagnosisList);
+            rocketmqService.deleteAttending(newAttendingDiagnosisList);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -127,55 +123,12 @@ public class AttendingDiagnosisService {
      * @return
      */
     public Result updateAttendingProblemList(List<AttendingDiagnosis> attendingDiagnosisNewList,
-                                             List<AttendingDiagnosis> attendingDiagnosisOldList) throws Exception{
-//        try {
-//            if (attendingDiagnosisNewList != null && attendingDiagnosisNewList.size() != 0) {
-//                setAttendingProblem(attendingDiagnosisNewList);
-//            }
-//        } catch (Exception e) {
-//            return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
-//        }
-//        Integer encounterId = null;
-//        if (attendingDiagnosisOldList != null && attendingDiagnosisOldList.size() != 0) {
-//            encounterId = attendingDiagnosisOldList.get(0).getEncounterId();
-//        }
-//        //用mongo查，不够快。mq还没消费成功，就去请求了
-//        List<AttendingDiagnosis> attendingDiagnosisList = attendingDiagnosisOraRepository.findByEncounterId(encounterId);
-//        Set<String> adlNewSet = new HashSet<>();
-//        if (attendingDiagnosisNewList != null && attendingDiagnosisNewList.size() != 0) {
-//            for (AttendingDiagnosis ad : attendingDiagnosisNewList) {
-//                adlNewSet.add(ad.toString());
-//            }
-//        }
-//        try {
-//            for (AttendingDiagnosis ad : attendingDiagnosisList) {
-//                if (adlNewSet.contains(ad.toString()) == false) {
-//                    attendingDiagnosisOraRepository.delete(ad);
-//                }
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return Result.buildError(CodeMsg.DELETE_DATA_ERROR);
-//        }
-//        try {
-//            for (AttendingDiagnosis ad : attendingDiagnosisList) {
-//                if (adlNewSet.contains(ad.toString()) == false) {
-//                    //attendingDiagnosisMonRepository.delete(ad);
-//                    producer.send("AttendingTopicDel", "attendingPushDel", JSON.toJSONString(ad));
-//                }
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        return Result.buildSuccess("update attending problem success");
-
+                                             List<AttendingDiagnosis> attendingDiagnosisOldList) throws Exception {
         if (attendingDiagnosisNewList != null && attendingDiagnosisNewList.size() != 0) {
             Set<String> adlNewSet = new HashSet<>();
             for (int i = 0; i < attendingDiagnosisNewList.size(); i++) {
                 if (adlNewSet.contains(attendingDiagnosisNewList.get(i).toString())) {
                     throw new Exception("save fail");
-                    //return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
                 }
                 adlNewSet.add(attendingDiagnosisNewList.get(i).toString());
             }
@@ -204,18 +157,11 @@ public class AttendingDiagnosisService {
         try {
             if (attendingDiagnosisNewList != null) {
                 List<AttendingDiagnosis> attendingDiagnosisList = attendingDiagnosisOraRepository.findByEncounterId(attendingDiagnosisNewList.get(0).getEncounterId());
-                for (int i = 0; i < attendingDiagnosisList.size(); i++) {
-                    attendingDiagnosisOraRepository.delete(attendingDiagnosisList.get(i));
-                    producer.send("AttendingTopicDel", "attendingPushDel", JSON.toJSONString(attendingDiagnosisList.get(i)));
-                }
+                attendingDiagnosisOraRepository.deleteAll(attendingDiagnosisList);
+                rocketmqService.deleteAttending(attendingDiagnosisList);
             }
-
-            for (int i = 0; i < attendingDiagnosisOldList.size(); i++) {
-                attendingDiagnosisOraRepository.save(attendingDiagnosisOldList.get(i));
-            }
-            for (int i = 0; i < attendingDiagnosisOldList.size(); i++) {
-                producer.send("AttendingTopic", "attendingPush", JSON.toJSONString(attendingDiagnosisOldList.get(i)));
-            }
+            attendingDiagnosisOraRepository.saveAll(attendingDiagnosisOldList);
+            rocketmqService.saveAttending(attendingDiagnosisOldList);
 
         } catch (Exception e) {
             e.printStackTrace();
