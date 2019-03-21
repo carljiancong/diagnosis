@@ -3,7 +3,6 @@ package com.harmonycloud.dto;
 import com.harmonycloud.entity.ChronicDiagnosis;
 
 /**
- * @author qidong
  * @date 2019/3/7
  */
 public class ChronicDiagnosisDto {
@@ -18,7 +17,7 @@ public class ChronicDiagnosisDto {
     }
 
     public ChronicDiagnosisDto(Integer chronicDiagnosisId, Integer diagnosisId,
-        String diagnosisDescription, Integer patientId, Integer encounterId, String status) {
+                               String diagnosisDescription, Integer patientId, Integer encounterId, String status) {
         this.chronicDiagnosisId = chronicDiagnosisId;
         this.diagnosisId = diagnosisId;
         this.diagnosisDescription = diagnosisDescription;
@@ -27,13 +26,14 @@ public class ChronicDiagnosisDto {
         this.status = status;
     }
 
-    public void setChronicDiagnosis(ChronicDiagnosis chronicDiagnosis){
+    public void setChronicDiagnosis(ChronicDiagnosis chronicDiagnosis) {
         this.chronicDiagnosisId = chronicDiagnosis.getId();
         this.diagnosisId = chronicDiagnosis.getDiagnosisId();
         this.patientId = chronicDiagnosis.getPatientId();
         this.encounterId = chronicDiagnosis.getEncounterId();
         this.status = chronicDiagnosis.getStatus();
     }
+
     public Integer getChronicDiagnosisId() {
         return chronicDiagnosisId;
     }

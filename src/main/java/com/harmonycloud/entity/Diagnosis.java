@@ -7,7 +7,6 @@ import javax.persistence.*;
 
 
 /**
- * @author qidong
  * @date 2019/2/13
  */
 @Document(collection = "diagnosis")

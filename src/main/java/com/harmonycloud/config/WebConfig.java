@@ -11,7 +11,6 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
 /**
- * @author qidong
  * @date 2019/3/10
  */
 public class WebConfig extends WebMvcConfigurationSupport {

@@ -11,11 +11,11 @@ import java.util.List;
  * @date 2019/2/26
  */
 @RepositoryRestResource
-public interface DiagnosisMonRepository extends MongoRepository<Diagnosis,Integer> {
-    public Diagnosis findByDiagnosisId(Integer keywordNum);
+public interface DiagnosisMonRepository extends MongoRepository<Diagnosis, Integer> {
+    Diagnosis findByDiagnosisId(Integer keywordNum);
 
-    public List<Diagnosis> findByDiagnosisDescriptionLike(String keyword);
+    List<Diagnosis> findByDiagnosisDescriptionLike(String keyword);
 
-    public List<Diagnosis> findByDiagnosisDescriptionMatchesRegex(String keyword);
+    List<Diagnosis> findByDiagnosisDescriptionMatchesRegex(String keyword);
 
 }

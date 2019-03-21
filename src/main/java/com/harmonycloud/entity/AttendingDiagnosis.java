@@ -5,7 +5,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import javax.persistence.*;
 
 /**
- * @author qidong
  * @date 2019/2/13
  */
 

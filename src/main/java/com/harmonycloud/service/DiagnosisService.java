@@ -2,7 +2,7 @@ package com.harmonycloud.service;
 
 import com.harmonycloud.entity.Diagnosis;
 import com.harmonycloud.monRepository.DiagnosisMonRepository;
-import com.harmonycloud.result.Result;
+import com.harmonycloud.oraRepository.DiagnosisOraRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
@@ -11,29 +11,42 @@ import org.springframework.data.mongodb.core.query.TextQuery;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * @author qidong
  * @date 2019/2/26
  */
 @Service
 public class DiagnosisService {
 
-    @Autowired
-    DiagnosisMonRepository diagnosisMonRepository;
 
     @Autowired
-    MongoTemplate mongoTemplate;
+    private DiagnosisMonRepository diagnosisMonRepository;
 
-    public Result searchByKeyword(String keyword) {
+    @Autowired
+    private DiagnosisOraRepository diagnosisOraRepository;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+    /**
+     * get diagnosis list by key word
+     *
+     * @param keyword
+     * @return
+     * @throws Exception
+     */
+    public List<Diagnosis> searchByKeyword(String keyword) throws Exception {
         List<Diagnosis> diagnosesList = new ArrayList<>();
         Query query = new TextQuery(new TextCriteria().matchingAny(keyword)).sortByScore();
         List<Diagnosis> diagnoses = mongoTemplate.find(query, Diagnosis.class);
 
-        //diagnoses = diagnosisMonRepository.findByDiagnosisDescriptionMatchesRegex(keyword);
-
         if (diagnoses != null && diagnoses.size() != 0) {
+            diagnosesList.addAll(diagnoses);
+        } else {
+            diagnoses = diagnosisOraRepository.findByDiagnosisDescriptionContaining(keyword);
             diagnosesList.addAll(diagnoses);
         }
 
@@ -41,20 +54,33 @@ public class DiagnosisService {
         try {
             Integer keywordNum = Integer.valueOf(keyword);
             Diagnosis diagnose = diagnosisMonRepository.findByDiagnosisId(keywordNum);
+            if (diagnose == null) {
+                diagnose = diagnosisOraRepository.findByDiagnosisId(keywordNum);
+            }
             diagnosesList.add(diagnose);
         } catch (Exception e) {
             //e.printStackTrace();
         }
-        return Result.buildSuccess(diagnosesList);
+        return diagnosesList;
     }
 
-//    public boolean isNumeric(String str){
-//        for (int i = str.length()-1;i>=0;i--){
-//            if (!Character.isDigit(str.charAt(i))){
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
+    /**
+     * get diagnosis by integer list
+     *
+     * @param integerList
+     * @return
+     * @throws Exception
+     */
+    public Map<Integer, Diagnosis> getDiagnosisByIntegerList(List<Integer> integerList) throws Exception {
+        Iterable<Diagnosis> diagnoses = diagnosisMonRepository.findAllById(integerList);
+        Map<Integer, Diagnosis> diagnosisMap = new HashMap<>();
+        if (diagnoses != null) {
+            diagnoses = diagnosisOraRepository.findAllById(integerList);
+        }
+        diagnoses.forEach(diagnosis -> {
+            diagnosisMap.put(diagnosis.getDiagnosisId(), diagnosis);
+        });
+        return diagnosisMap;
+    }
 
 }

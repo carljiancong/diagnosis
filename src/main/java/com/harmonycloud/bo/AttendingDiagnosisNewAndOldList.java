@@ -5,7 +5,6 @@ import com.harmonycloud.entity.AttendingDiagnosis;
 import java.util.List;
 
 /**
- * @author qidong
  * @date 2019/3/6
  */
 public class AttendingDiagnosisNewAndOldList {

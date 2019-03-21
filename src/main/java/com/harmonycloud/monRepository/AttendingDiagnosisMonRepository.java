@@ -7,13 +7,12 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import java.util.List;
 
 /**
- * @author qidong
  * @date 2019/2/27
  */
 @RepositoryRestResource
-public interface AttendingDiagnosisMonRepository extends MongoRepository<AttendingDiagnosis,Integer> {
+public interface AttendingDiagnosisMonRepository extends MongoRepository<AttendingDiagnosis, Integer> {
 
-    public List<AttendingDiagnosis> findByPatientIdOrderByEncounterId(Integer patientId);
-    public List<AttendingDiagnosis> findByEncounterId(Integer encounterId);
+    List<AttendingDiagnosis> findByPatientIdOrderByEncounterId(Integer patientId);
+    List<AttendingDiagnosis> findByEncounterId(Integer encounterId);
 
 }

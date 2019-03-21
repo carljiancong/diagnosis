@@ -10,17 +10,20 @@ import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
 import org.apache.rocketmq.common.message.Message;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 
 /**
- * @author qidong
  * @date 2019/3/4
  */
 @Service
 public class Consumer implements CommandLineRunner {
+
+    private static final Logger logger = LoggerFactory.getLogger(Consumer.class);
     /**
      * 消费者
      */
@@ -42,9 +45,8 @@ public class Consumer implements CommandLineRunner {
     /**
      * 初始化RocketMq的监听信息，渠道信息
      */
-    public void messageListener(){
-
-        DefaultMQPushConsumer consumer=new DefaultMQPushConsumer("AttendingGroup");
+    public void messageListener() {
+        DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("AttendingGroup");
 
         consumer.setNamesrvAddr(namesrvAddr);
         try {
@@ -61,10 +63,10 @@ public class Consumer implements CommandLineRunner {
             consumer.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
 
                 // 会把不同的消息分别放置到不同的队列中
-                for(Message msg:msgs){
+                for (Message msg : msgs) {
                     AttendingDiagnosis ad = JSON.toJavaObject(JSON.parseObject(new String(msg.getBody())), AttendingDiagnosis.class);
                     attendingDiagnosisMonRepository.save(ad);
-                    System.out.println("接收到了消息："+new String(msg.getBody()));
+                    System.out.println("接收到了消息：" + new String(msg.getBody()));
                 }
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             });
@@ -72,13 +74,13 @@ public class Consumer implements CommandLineRunner {
             consumer.start();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
     }
 
-    public void messageListenerDel(){
+    public void messageListenerDel() {
 
-        DefaultMQPushConsumer consumer=new DefaultMQPushConsumer("AttendingGroupDel");
+        DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("AttendingGroupDel");
 
         consumer.setNamesrvAddr(namesrvAddr);
         try {
@@ -95,10 +97,10 @@ public class Consumer implements CommandLineRunner {
             consumer.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
 
                 // 会把不同的消息分别放置到不同的队列中
-                for(Message msg:msgs){
+                for (Message msg : msgs) {
                     AttendingDiagnosis ad = JSON.toJavaObject(JSON.parseObject(new String(msg.getBody())), AttendingDiagnosis.class);
                     attendingDiagnosisMonRepository.delete(ad);
-                    System.out.println("接收到了消息："+new String(msg.getBody()));
+                    System.out.println("接收到了消息：" + new String(msg.getBody()));
                 }
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             });
@@ -106,14 +108,13 @@ public class Consumer implements CommandLineRunner {
             consumer.start();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
     }
 
 
-    public void messageListenerChronic(){
-
-        DefaultMQPushConsumer consumerChronic=new DefaultMQPushConsumer("ChronicGroup");
+    public void messageListenerChronic() {
+        DefaultMQPushConsumer consumerChronic = new DefaultMQPushConsumer("ChronicGroup");
 
         consumerChronic.setNamesrvAddr(namesrvAddr);
         try {
@@ -130,10 +131,10 @@ public class Consumer implements CommandLineRunner {
             consumerChronic.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
 
                 // 会把不同的消息分别放置到不同的队列中
-                for(Message msg:msgs){
+                for (Message msg : msgs) {
                     ChronicDiagnosis cd = JSON.toJavaObject(JSON.parseObject(new String(msg.getBody())), ChronicDiagnosis.class);
                     chronicDiagnosisMonRepository.save(cd);
-                    System.out.println("接收到了消息："+ new String(msg.getBody()));
+                    System.out.println("接收到了消息：" + new String(msg.getBody()));
                 }
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             });
@@ -141,13 +142,12 @@ public class Consumer implements CommandLineRunner {
             consumerChronic.start();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
     }
 
-    public void messageListenerChronicDel(){
-
-        DefaultMQPushConsumer consumerChronic=new DefaultMQPushConsumer("ChronicGroupDel");
+    public void messageListenerChronicDel() {
+        DefaultMQPushConsumer consumerChronic = new DefaultMQPushConsumer("ChronicGroupDel");
 
         consumerChronic.setNamesrvAddr(namesrvAddr);
         try {
@@ -164,10 +164,10 @@ public class Consumer implements CommandLineRunner {
             consumerChronic.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
 
                 // 会把不同的消息分别放置到不同的队列中
-                for(Message msg:msgs){
+                for (Message msg : msgs) {
                     ChronicDiagnosis cd = JSON.toJavaObject(JSON.parseObject(new String(msg.getBody())), ChronicDiagnosis.class);
                     chronicDiagnosisMonRepository.delete(cd);
-                    System.out.println("接收到了消息："+ new String(msg.getBody()));
+                    System.out.println("接收到了消息：" + new String(msg.getBody()));
                 }
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             });
@@ -175,7 +175,7 @@ public class Consumer implements CommandLineRunner {
             consumerChronic.start();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
     }
 

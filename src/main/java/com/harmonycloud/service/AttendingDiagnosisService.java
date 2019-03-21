@@ -1,159 +1,176 @@
 package com.harmonycloud.service;
 
-import com.alibaba.fastjson.JSON;
 import com.harmonycloud.dto.AttendingDiagnosisDto;
 import com.harmonycloud.entity.AttendingDiagnosis;
 import com.harmonycloud.entity.Diagnosis;
+import com.harmonycloud.enums.ErrorMsgEnum;
+import com.harmonycloud.exception.DiagnosisException;
 import com.harmonycloud.monRepository.AttendingDiagnosisMonRepository;
 import com.harmonycloud.monRepository.DiagnosisMonRepository;
 import com.harmonycloud.oraRepository.AttendingDiagnosisOraRepository;
-import com.harmonycloud.result.CodeMsg;
-import com.harmonycloud.result.Result;
+import com.harmonycloud.oraRepository.DiagnosisOraRepository;
+import com.harmonycloud.result.CimsResponseWrapper;
 import com.harmonycloud.rocketmq.Producer;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.remoting.exception.RemotingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
- * @author qidong
  * @date 2019/2/27
  */
 @Service
 public class AttendingDiagnosisService {
 
+    private static final Logger logger = LoggerFactory.getLogger(AttendingDiagnosisService.class);
+
+    @Autowired
+    private AttendingDiagnosisMonRepository attendingDiagnosisMonRepository;
+
+    @Autowired
+    private AttendingDiagnosisOraRepository attendingDiagnosisOraRepository;
+
+    @Autowired
+    private DiagnosisMonRepository diagnosisMonRepository;
+
+    @Autowired
+    private DiagnosisOraRepository diagnosisOraRepository;
+
+    @Autowired
+    private Producer producer;
+
+    @Autowired
+    private RocketmqService rocketmqService;
+
+    @Autowired
+    private DiagnosisService diagnosisService;
+
     /**
-     *
-     */
-    @Autowired
-    AttendingDiagnosisMonRepository attendingDiagnosisMonRepository;
-
-    @Autowired
-    AttendingDiagnosisOraRepository attendingDiagnosisOraRepository;
-
-    @Autowired
-    DiagnosisMonRepository diagnosisMonRepository;
-
-    @Autowired
-    Producer producer;
-
-    @Autowired
-    RocketmqService rocketmqService;
-
-    /**
-     * 先将数据保存到oracle中，保存成功后，将数据通过rocketmq消费到mongodb中
+     * first data save oracle ,and then send mongodb by rocketmq
      *
      * @param attendingDiagnosisList
      * @return
+     * @throws Exception
      */
-
-    public Result setAttendingProblem(List<AttendingDiagnosis> attendingDiagnosisList) throws InterruptedException, RemotingException, UnsupportedEncodingException, MQClientException, MQBrokerException {
-        try {
-            for (int i = 0; i < attendingDiagnosisList.size(); i++) {
-                AttendingDiagnosis attendingDiagnosis = attendingDiagnosisList.get(i);
-                Integer adId = attendingDiagnosisOraRepository.save(attendingDiagnosis).getAttendingDiagnosisId();
-                attendingDiagnosis.setAttendingDiagnosisId(adId);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Result.buildError(CodeMsg.SAVE_DATA_FAIL);
+    @Transactional(rollbackFor = Exception.class)
+    public boolean setAttendingProblem(List<AttendingDiagnosis> attendingDiagnosisList) throws Exception {
+        for (int i = 0; i < attendingDiagnosisList.size(); i++) {
+            AttendingDiagnosis attendingDiagnosis = attendingDiagnosisList.get(i);
+            Integer adId = attendingDiagnosisOraRepository.save(attendingDiagnosis).getAttendingDiagnosisId();
+            attendingDiagnosis.setAttendingDiagnosisId(adId);
         }
-        try {
-            rocketmqService.saveAttending(attendingDiagnosisList);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new MQClientException("mq error", new Throwable());
-        }
-        return Result.buildSuccess("save attending problem success");
+        rocketmqService.saveAttending(attendingDiagnosisList);
+        return true;
     }
 
-    public void setAttendingProblemCancel(List<AttendingDiagnosis> attendingDiagnosisList) {
+    /**
+     * set attending problem cancel
+     *
+     * @param attendingDiagnosisList
+     * @throws DiagnosisException
+     */
+    public void setAttendingProblemCancel(List<AttendingDiagnosis> attendingDiagnosisList) throws DiagnosisException {
         List<AttendingDiagnosis> newAttendingDiagnosisList = null;
         try {
             newAttendingDiagnosisList = attendingDiagnosisOraRepository.findByEncounterId(attendingDiagnosisList.get(0).getEncounterId());
             attendingDiagnosisOraRepository.deleteAll(newAttendingDiagnosisList);
             rocketmqService.deleteAttending(newAttendingDiagnosisList);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
+            throw new DiagnosisException(ErrorMsgEnum.SAVE_ERROR.getMessage());
         }
     }
 
     /**
-     * 通过 encounter id查到到最近一次到医院的就诊记录
+     * get patient diagnosis list by encounter id
      *
      * @param encounterId
      * @return
+     * @throws Exception
      */
-    public Result getPatientDiagnosisList(Integer encounterId) {
+    public List<AttendingDiagnosisDto> getPatientDiagnosisList(Integer encounterId) throws Exception {
         List<AttendingDiagnosis> attendingDiagnosisList = null;
-        try {
-            attendingDiagnosisList = attendingDiagnosisMonRepository.findByEncounterId(encounterId);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Result.buildError(CodeMsg.QUERY_DATA_ERROR);
+
+        attendingDiagnosisList = attendingDiagnosisMonRepository.findByEncounterId(encounterId);
+
+        //oracle search
+        if (CollectionUtils.isEmpty(attendingDiagnosisList)) {
+            attendingDiagnosisList = attendingDiagnosisOraRepository.findByEncounterId(encounterId);
         }
+
         List<AttendingDiagnosisDto> addList = new ArrayList<>();
-        if ((attendingDiagnosisList != null) && (attendingDiagnosisList.size() != 0)) {
+        if (CollectionUtils.isNotEmpty(attendingDiagnosisList)) {
+            List<Integer> integerList = new ArrayList<>();
+            for (AttendingDiagnosis ad : attendingDiagnosisList) {
+                integerList.add(ad.getDiagnosisId());
+            }
+            Map<Integer, Diagnosis> diagnosisMap = diagnosisService.getDiagnosisByIntegerList(integerList);
+
             for (AttendingDiagnosis ad : attendingDiagnosisList) {
                 AttendingDiagnosisDto add = new AttendingDiagnosisDto();
-                Diagnosis diagnosis = diagnosisMonRepository.findByDiagnosisId(ad.getDiagnosisId());
+                Diagnosis diagnosis = diagnosisMap.get(ad.getDiagnosisId());
+
                 add.setAttendingDiagnosis(ad);
                 add.setDiagnosisDescription(diagnosis.getDiagnosisDescription());
                 addList.add(add);
             }
         }
-        return Result.buildSuccess(addList);
+        return addList;
     }
 
     /**
-     * oldList里的encounterId都是一定的，取其中encounterId。在数据库找出encounterId下的所有数据，
-     * 让oldList与数据库中的值对比，若没有一处不同，则可以更新，否则更新失败。
+     * first delete, then insert
      *
      * @param attendingDiagnosisNewList
      * @param attendingDiagnosisOldList
      * @return
+     * @throws DiagnosisException
      */
-    public Result updateAttendingProblemList(List<AttendingDiagnosis> attendingDiagnosisNewList,
-                                             List<AttendingDiagnosis> attendingDiagnosisOldList) throws Exception {
-        if (attendingDiagnosisNewList != null && attendingDiagnosisNewList.size() != 0) {
+    public boolean updateAttendingProblemList(List<AttendingDiagnosis> attendingDiagnosisNewList,
+                                              List<AttendingDiagnosis> attendingDiagnosisOldList) throws DiagnosisException {
+        if (CollectionUtils.isNotEmpty(attendingDiagnosisNewList)) {
             Set<String> adlNewSet = new HashSet<>();
             for (int i = 0; i < attendingDiagnosisNewList.size(); i++) {
                 if (adlNewSet.contains(attendingDiagnosisNewList.get(i).toString())) {
-                    throw new Exception("save fail");
+                    throw new DiagnosisException("save fail");
                 }
                 adlNewSet.add(attendingDiagnosisNewList.get(i).toString());
             }
         }
         try {
-            if (attendingDiagnosisOldList != null && attendingDiagnosisOldList.size() != 0) {
+            if (CollectionUtils.isNotEmpty(attendingDiagnosisOldList)) {
                 List<AttendingDiagnosis> attendingDiagnosisList = attendingDiagnosisOraRepository.findByEncounterId(attendingDiagnosisOldList.get(0).getEncounterId());
                 for (int i = 0; i < attendingDiagnosisList.size(); i++) {
                     attendingDiagnosisOraRepository.delete(attendingDiagnosisList.get(i));
                 }
                 rocketmqService.deleteAttending(attendingDiagnosisList);
             }
-            if (attendingDiagnosisNewList != null && attendingDiagnosisNewList.size() != 0) {
+            if (CollectionUtils.isNotEmpty(attendingDiagnosisNewList)) {
                 setAttendingProblem(attendingDiagnosisNewList);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new DiagnosisException(ErrorMsgEnum.UPDATE_ERROR.getMessage());
         }
-        return Result.buildSuccess("update attending problem success");
+        return true;
     }
 
 
-    //    目前采用了把newList全部del，oldList全部save的操作
+    /**
+     * update attending problem cancel
+     *
+     * @param attendingDiagnosisNewList
+     * @param attendingDiagnosisOldList
+     * @throws DiagnosisException
+     */
     public void updateAttendingProblemCancel(List<AttendingDiagnosis> attendingDiagnosisNewList,
-                                             List<AttendingDiagnosis> attendingDiagnosisOldList) {
+                                             List<AttendingDiagnosis> attendingDiagnosisOldList) throws DiagnosisException {
         try {
             if (attendingDiagnosisNewList != null) {
                 List<AttendingDiagnosis> attendingDiagnosisList = attendingDiagnosisOraRepository.findByEncounterId(attendingDiagnosisNewList.get(0).getEncounterId());
@@ -164,7 +181,7 @@ public class AttendingDiagnosisService {
             rocketmqService.saveAttending(attendingDiagnosisOldList);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new DiagnosisException(ErrorMsgEnum.UPDATE_ERROR.getMessage());
         }
     }
 }

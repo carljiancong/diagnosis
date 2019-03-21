@@ -3,7 +3,6 @@ package com.harmonycloud.dto;
 import com.harmonycloud.entity.AttendingDiagnosis;
 
 /**
- * @author qidong
  * @date 2019/3/7
  */
 public class AttendingDiagnosisDto {
@@ -25,7 +24,7 @@ public class AttendingDiagnosisDto {
     public AttendingDiagnosisDto() {
     }
 
-    public void setAttendingDiagnosis(AttendingDiagnosis attendingDiagnosis){
+    public void setAttendingDiagnosis(AttendingDiagnosis attendingDiagnosis) {
         this.attendingDiagnosisId = attendingDiagnosis.getAttendingDiagnosisId();
         this.diagnosisId = attendingDiagnosis.getDiagnosisId();
         this.patientId = attendingDiagnosis.getPatientId();

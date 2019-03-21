@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ChronicDiagnosisOraRepository extends JpaRepository<ChronicDiagnosis,Integer> {
+public interface ChronicDiagnosisOraRepository extends JpaRepository<ChronicDiagnosis, Integer> {
     List<ChronicDiagnosis> findByEncounterId(Integer encounterId);
+
+    List<ChronicDiagnosis> findByPatientIdOrderByEncounterId(Integer patientId);
 }

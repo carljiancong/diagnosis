@@ -1,12 +1,10 @@
 package com.harmonycloud.bo;
 
 import com.harmonycloud.entity.ChronicDiagnosis;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
 /**
- * @author qidong
  * @date 2019/3/6
  */
 public class ChronicDiagnosisNewAndOldList {
