@@ -9,12 +9,10 @@ import com.harmonycloud.monRepository.ChronicDiagnosisMonRepository;
 import com.harmonycloud.monRepository.DiagnosisMonRepository;
 import com.harmonycloud.oraRepository.ChronicDiagnosisOraRepository;
 import com.harmonycloud.oraRepository.DiagnosisOraRepository;
-import com.harmonycloud.result.CimsResponseWrapper;
 import com.harmonycloud.rocketmq.Producer;
 
 import java.util.*;
 
-import com.oracle.tools.packager.mac.MacAppBundler;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
