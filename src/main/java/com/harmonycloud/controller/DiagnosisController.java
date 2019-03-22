@@ -1,7 +1,7 @@
 package com.harmonycloud.controller;
 
-import com.harmonycloud.bo.AttendingDiagnosisNewAndOldList;
-import com.harmonycloud.bo.ChronicDiagnosisNewAndOldList;
+import com.harmonycloud.dto.AttendingDiagnosisNewAndOldList;
+import com.harmonycloud.dto.ChronicDiagnosisNewAndOldList;
 import com.harmonycloud.dto.AttendingDiagnosisDto;
 import com.harmonycloud.dto.ChronicDiagnosisDto;
 import com.harmonycloud.entity.AttendingDiagnosis;
@@ -73,7 +73,7 @@ public class DiagnosisController {
     @ApiImplicitParam(name = "encounterId", value = "encounterId", paramType = "query", dataType = "Integer")
     @GetMapping("/attendingproblemList")
     public CimsResponseWrapper<List> getAttendingProblem(@RequestParam("encounterId") Integer encounterId) throws Exception {
-        if (encounterId == null) {
+        if (encounterId == null || encounterId < 0) {
             return new CimsResponseWrapper<>(false, ErrorMsgEnum.PARAM_ERROR.getMessage(), null);
         }
         List<AttendingDiagnosisDto> attendingDiagnosisDtoList = attendingDiagnosisService.getPatientDiagnosisList(encounterId);
@@ -91,7 +91,7 @@ public class DiagnosisController {
     @ApiImplicitParam(name = "patientId", value = "patientId", paramType = "query", dataType = "Integer")
     @GetMapping("/chronicProblemList")
     public CimsResponseWrapper<List> getPatientChronicProblem(@RequestParam("patientId") Integer patientId) throws Exception {
-        if (patientId == null) {
+        if (patientId == null || patientId < 0) {
             return new CimsResponseWrapper<>(false, ErrorMsgEnum.PARAM_ERROR.getMessage(), null);
         }
         List<ChronicDiagnosisDto> chronicDiagnosisDtoList = chronicDiagnosisService.getPatientChronicProblemList(patientId);

@@ -10,10 +10,7 @@ import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.data.mongodb.core.query.TextQuery;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @date 2019/2/26
@@ -61,6 +58,12 @@ public class DiagnosisService {
         } catch (Exception e) {
             //e.printStackTrace();
         }
+        Collections.sort(diagnosesList, new Comparator<Diagnosis>() {
+            @Override
+            public int compare(Diagnosis o1, Diagnosis o2) {
+                return o1.getDiagnosisDescription().compareToIgnoreCase(o2.getDiagnosisDescription());
+            }
+        });
         return diagnosesList;
     }
 

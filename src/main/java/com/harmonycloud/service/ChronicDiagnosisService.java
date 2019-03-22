@@ -159,9 +159,7 @@ public class ChronicDiagnosisService {
         try {
             if (CollectionUtils.isNotEmpty(chronicDiagnosisOldList)) {
                 List<ChronicDiagnosis> chronicDiagnosisList = chronicDiagnosisOraRepository.findByEncounterId(chronicDiagnosisOldList.get(0).getEncounterId());
-                for (int i = 0; i < chronicDiagnosisList.size(); i++) {
-                    chronicDiagnosisOraRepository.delete(chronicDiagnosisList.get(i));
-                }
+                chronicDiagnosisOraRepository.deleteAll(chronicDiagnosisList);
                 rocketmqService.deleteChronic(chronicDiagnosisList);
             }
             if (CollectionUtils.isNotEmpty(chronicDiagnosisNewList)) {

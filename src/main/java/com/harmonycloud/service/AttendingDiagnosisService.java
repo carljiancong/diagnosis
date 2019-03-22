@@ -147,9 +147,7 @@ public class AttendingDiagnosisService {
         try {
             if (CollectionUtils.isNotEmpty(attendingDiagnosisOldList)) {
                 List<AttendingDiagnosis> attendingDiagnosisList = attendingDiagnosisOraRepository.findByEncounterId(attendingDiagnosisOldList.get(0).getEncounterId());
-                for (int i = 0; i < attendingDiagnosisList.size(); i++) {
-                    attendingDiagnosisOraRepository.delete(attendingDiagnosisList.get(i));
-                }
+                attendingDiagnosisOraRepository.deleteAll(attendingDiagnosisList);
                 rocketmqService.deleteAttending(attendingDiagnosisList);
             }
             if (CollectionUtils.isNotEmpty(attendingDiagnosisNewList)) {

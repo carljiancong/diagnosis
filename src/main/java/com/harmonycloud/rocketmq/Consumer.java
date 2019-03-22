@@ -48,6 +48,10 @@ public class Consumer implements CommandLineRunner {
     public void messageListener() {
         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("AttendingGroup");
 
+        //设置广播消费模式
+        //consumer.setMessageModel(MessageModel.BROADCASTING);
+
+
         consumer.setNamesrvAddr(namesrvAddr);
         try {
 

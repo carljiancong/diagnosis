@@ -1,4 +1,4 @@
-package com.harmonycloud.bo;
+package com.harmonycloud.dto;
 
 import com.harmonycloud.entity.AttendingDiagnosis;
 

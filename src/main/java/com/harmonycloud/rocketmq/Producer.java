@@ -1,6 +1,5 @@
 package com.harmonycloud.rocketmq;
 
-import com.harmonycloud.service.AttendingDiagnosisService;
 import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
@@ -12,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StopWatch;
 
 import javax.annotation.PostConstruct;
 import java.io.UnsupportedEncodingException;
@@ -56,11 +54,11 @@ public class Producer {
     public String send(String topic, String tags, String body) throws InterruptedException, RemotingException, MQClientException,
             MQBrokerException, UnsupportedEncodingException {
         Message message = new Message(topic, tags, body.getBytes(RemotingHelper.DEFAULT_CHARSET));
-        StopWatch stop = new StopWatch();
-        stop.start();
+
+        //发送结果状态
         SendResult result = producer.send(message);
         System.out.println("发送响应：MsgId:" + result.getMsgId() + "，发送状态:" + result.getSendStatus());
-        stop.stop();
+
         return "{\"MsgId\":\"" + result.getMsgId() + "\"}";
     }
 }
