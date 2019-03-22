@@ -57,8 +57,8 @@ public class Producer {
 
         //发送结果状态
         SendResult result = producer.send(message);
-        System.out.println("发送响应：MsgId:" + result.getMsgId() + "，发送状态:" + result.getSendStatus());
-
+//        System.out.println("发送响应：MsgId:" + result.getMsgId() + "，发送状态:" + result.getSendStatus());
+        logger.info("发送响应：MsgId:" + result.getMsgId() + "，发送状态:" + result.getSendStatus());
         return "{\"MsgId\":\"" + result.getMsgId() + "\"}";
     }
 }
