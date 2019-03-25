@@ -10,7 +10,7 @@ import javax.persistence.*;
 
 @Document(collection = "attending_diagnosis")
 @Entity
-@Table(name = "attending_diagosis")
+@Table(name = "attending_diagnosis")
 public class AttendingDiagnosis {
 
     @Id

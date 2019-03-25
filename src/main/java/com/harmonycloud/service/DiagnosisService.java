@@ -3,6 +3,7 @@ package com.harmonycloud.service;
 import com.harmonycloud.entity.Diagnosis;
 import com.harmonycloud.monRepository.DiagnosisMonRepository;
 import com.harmonycloud.oraRepository.DiagnosisOraRepository;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
@@ -40,7 +41,7 @@ public class DiagnosisService {
         Query query = new TextQuery(new TextCriteria().matchingAny(keyword)).sortByScore();
         List<Diagnosis> diagnoses = mongoTemplate.find(query, Diagnosis.class);
 
-        if (diagnoses != null && diagnoses.size() != 0) {
+        if (CollectionUtils.isNotEmpty(diagnoses)) {
             diagnosesList.addAll(diagnoses);
         } else {
             diagnoses = diagnosisOraRepository.findByDiagnosisDescriptionContaining(keyword);
