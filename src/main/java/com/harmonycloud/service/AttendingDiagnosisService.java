@@ -6,10 +6,7 @@ import com.harmonycloud.entity.Diagnosis;
 import com.harmonycloud.enums.ErrorMsgEnum;
 import com.harmonycloud.exception.DiagnosisException;
 import com.harmonycloud.monRepository.AttendingDiagnosisMonRepository;
-import com.harmonycloud.monRepository.DiagnosisMonRepository;
 import com.harmonycloud.oraRepository.AttendingDiagnosisOraRepository;
-import com.harmonycloud.oraRepository.DiagnosisOraRepository;
-import com.harmonycloud.rocketmq.Producer;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,15 +31,6 @@ public class AttendingDiagnosisService {
     private AttendingDiagnosisOraRepository attendingDiagnosisOraRepository;
 
     @Autowired
-    private DiagnosisMonRepository diagnosisMonRepository;
-
-    @Autowired
-    private DiagnosisOraRepository diagnosisOraRepository;
-
-    @Autowired
-    private Producer producer;
-
-    @Autowired
     private RocketmqService rocketmqService;
 
     @Autowired
@@ -57,12 +45,9 @@ public class AttendingDiagnosisService {
      */
     @Transactional(rollbackFor = Exception.class)
     public boolean setAttendingProblem(List<AttendingDiagnosis> attendingDiagnosisList) throws Exception {
-        for (int i = 0; i < attendingDiagnosisList.size(); i++) {
-            AttendingDiagnosis attendingDiagnosis = attendingDiagnosisList.get(i);
-            Integer adId = attendingDiagnosisOraRepository.save(attendingDiagnosis).getAttendingDiagnosisId();
-            attendingDiagnosis.setAttendingDiagnosisId(adId);
-        }
-        rocketmqService.saveAttending(attendingDiagnosisList);
+        attendingDiagnosisOraRepository.saveAll(attendingDiagnosisList);
+        List<AttendingDiagnosis> attendingDiagnosisListTmp = attendingDiagnosisOraRepository.findByEncounterId(attendingDiagnosisList.get(0).getEncounterId());
+        rocketmqService.saveAttending(attendingDiagnosisListTmp);
         return true;
     }
 
