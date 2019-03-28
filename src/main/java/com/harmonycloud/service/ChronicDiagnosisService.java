@@ -6,10 +6,7 @@ import com.harmonycloud.entity.Diagnosis;
 import com.harmonycloud.enums.ErrorMsgEnum;
 import com.harmonycloud.exception.DiagnosisException;
 import com.harmonycloud.monRepository.ChronicDiagnosisMonRepository;
-import com.harmonycloud.monRepository.DiagnosisMonRepository;
 import com.harmonycloud.oraRepository.ChronicDiagnosisOraRepository;
-import com.harmonycloud.oraRepository.DiagnosisOraRepository;
-import com.harmonycloud.rocketmq.Producer;
 
 import java.util.*;
 
@@ -32,15 +29,6 @@ public class ChronicDiagnosisService {
 
     @Autowired
     private ChronicDiagnosisOraRepository chronicDiagnosisOraRepository;
-
-    @Autowired
-    private DiagnosisMonRepository diagnosisMonRepository;
-
-    @Autowired
-    private DiagnosisOraRepository diagnosisOraRepository;
-
-    @Autowired
-    private Producer producer;
 
     @Autowired
     private RocketmqService rocketmqService;
@@ -103,19 +91,12 @@ public class ChronicDiagnosisService {
      *
      * @param chronicDiagnosisList
      * @return
-     * @throws DiagnosisException
+     * @throws Exception
      */
-    public boolean setChronicProblem(List<ChronicDiagnosis> chronicDiagnosisList) throws DiagnosisException {
-        for (int i = 0; i < chronicDiagnosisList.size(); i++) {
-            ChronicDiagnosis chronicDiagnosis = chronicDiagnosisList.get(i);
-            Integer cdId = chronicDiagnosisOraRepository.save(chronicDiagnosis).getId();
-            chronicDiagnosis.setId(cdId);
-        }
-        try {
-            rocketmqService.saveChronic(chronicDiagnosisList);
-        } catch (Exception e) {
-            throw new DiagnosisException(ErrorMsgEnum.ROCKETMQ_ERROR.getMessage());
-        }
+    public boolean setChronicProblem(List<ChronicDiagnosis> chronicDiagnosisList) throws Exception {
+        chronicDiagnosisOraRepository.saveAll(chronicDiagnosisList);
+        List<ChronicDiagnosis> chronicDiagnosisListTmp = chronicDiagnosisOraRepository.findByEncounterId(chronicDiagnosisList.get(0).getEncounterId());
+        rocketmqService.saveChronic(chronicDiagnosisListTmp);
         return true;
     }
 

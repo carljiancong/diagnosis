@@ -70,7 +70,7 @@ public class Consumer implements CommandLineRunner {
                 for (Message msg : msgs) {
                     AttendingDiagnosis ad = JSON.toJavaObject(JSON.parseObject(new String(msg.getBody())), AttendingDiagnosis.class);
                     attendingDiagnosisMonRepository.save(ad);
-                    System.out.println("接收到了消息：" + new String(msg.getBody()));
+                    logger.info("接收到了消息：" + new String(msg.getBody()));
                 }
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             });
@@ -104,7 +104,7 @@ public class Consumer implements CommandLineRunner {
                 for (Message msg : msgs) {
                     AttendingDiagnosis ad = JSON.toJavaObject(JSON.parseObject(new String(msg.getBody())), AttendingDiagnosis.class);
                     attendingDiagnosisMonRepository.delete(ad);
-                    System.out.println("接收到了消息：" + new String(msg.getBody()));
+                    logger.info("接收到了消息：" + new String(msg.getBody()));
                 }
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             });
@@ -138,7 +138,7 @@ public class Consumer implements CommandLineRunner {
                 for (Message msg : msgs) {
                     ChronicDiagnosis cd = JSON.toJavaObject(JSON.parseObject(new String(msg.getBody())), ChronicDiagnosis.class);
                     chronicDiagnosisMonRepository.save(cd);
-                    System.out.println("接收到了消息：" + new String(msg.getBody()));
+                    logger.info("接收到了消息：" + new String(msg.getBody()));
                 }
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             });
@@ -171,7 +171,7 @@ public class Consumer implements CommandLineRunner {
                 for (Message msg : msgs) {
                     ChronicDiagnosis cd = JSON.toJavaObject(JSON.parseObject(new String(msg.getBody())), ChronicDiagnosis.class);
                     chronicDiagnosisMonRepository.delete(cd);
-                    System.out.println("接收到了消息：" + new String(msg.getBody()));
+                    logger.info("接收到了消息：" + new String(msg.getBody()));
                 }
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             });
