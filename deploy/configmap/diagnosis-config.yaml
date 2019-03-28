@@ -7,8 +7,8 @@ data:
   application.properties: |-
     server.port=${port:8080}
     spring.application.name=diagnosis
-    spring.data.mongodb.uri= mongodb://mongodb:27017/data
-    security.publicKey= http://user/publicKey
+    spring.data.mongodb.uri= mongodb://mongo:27017/data
+    security.publicKey= http://user:8080/publicKey
     spring.datasource.url=jdbc:oracle:thin:@cimvmc1a:19306:cimc1d2
     spring.datasource.username=${ORACLE_USER}
     spring.datasource.password=${ORACLE_PWD}
