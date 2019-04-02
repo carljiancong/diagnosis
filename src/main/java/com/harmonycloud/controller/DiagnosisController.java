@@ -198,7 +198,7 @@ public class DiagnosisController {
 
         chronicDiagnosisService.updateChronicProblemList(chronicDiagnosisNewAndOldList.getNewChronicDiagnosisList(),
                 chronicDiagnosisNewAndOldList.getOldChronicDiagnosisList());
-
+        Thread.sleep(7000);
         return new CimsResponseWrapper<>(true, null, null);
     }
 
