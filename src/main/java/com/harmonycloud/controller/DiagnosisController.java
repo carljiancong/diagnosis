@@ -15,7 +15,6 @@ import com.harmonycloud.service.DiagnosisService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-import oracle.jdbc.proxy.annotation.Post;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
@@ -120,11 +119,12 @@ public class DiagnosisController {
     /**
      * save attending cancel
      *
-     * @param attendingDiagnosisList
+     * @param attendingDiagnosisList model
      */
     @PostMapping(path = "saveAttendingCancel")
-    public void saveAttendingCancel(@RequestBody List<AttendingDiagnosis> attendingDiagnosisList) {
+    public CimsResponseWrapper<String> saveAttendingCancel(@RequestBody List<AttendingDiagnosis> attendingDiagnosisList) throws Exception {
         attendingDiagnosisService.setAttendingProblemCancel(attendingDiagnosisList);
+        return new CimsResponseWrapper<>(true, null, "Save attending problem rollback success");
     }
 
     /**
@@ -150,9 +150,11 @@ public class DiagnosisController {
      * @param attendingDiagnosisNewAndOldList
      */
     @PostMapping(path = "updateAttendingCancel")
-    public void updateAttendingProblemCancel(@RequestBody AttendingDiagnosisNewAndOldList attendingDiagnosisNewAndOldList) {
+    public CimsResponseWrapper<String> updateAttendingProblemCancel(@RequestBody AttendingDiagnosisNewAndOldList attendingDiagnosisNewAndOldList) {
         attendingDiagnosisService.updateAttendingProblemCancel(attendingDiagnosisNewAndOldList.getNewAttendingDiagnosisList(),
                 attendingDiagnosisNewAndOldList.getOldAttendingDiagnosisList());
+        return new CimsResponseWrapper<>(true, null, "Update attending problem rollback success");
+
 
     }
 
@@ -179,8 +181,9 @@ public class DiagnosisController {
      * @param chronicDiagnosisList
      */
     @PostMapping(path = "saveChronicCancel")
-    public void saveChronicCancel(@RequestBody List<ChronicDiagnosis> chronicDiagnosisList) {
+    public CimsResponseWrapper<String> saveChronicCancel(@RequestBody List<ChronicDiagnosis> chronicDiagnosisList) {
         chronicDiagnosisService.setChronicProblemCancel(chronicDiagnosisList);
+        return new CimsResponseWrapper<>(true, null, "Save chronic problem rollback success");
 
     }
 
@@ -208,9 +211,10 @@ public class DiagnosisController {
      * @param chronicDiagnosisNewAndOldList
      */
     @PostMapping(path = "updateChronicCancel")
-    public void updateChronicProblemCancel(@RequestBody ChronicDiagnosisNewAndOldList chronicDiagnosisNewAndOldList) {
+    public CimsResponseWrapper<String> updateChronicProblemCancel(@RequestBody ChronicDiagnosisNewAndOldList chronicDiagnosisNewAndOldList) {
         chronicDiagnosisService.updateChronicProblemCancel(chronicDiagnosisNewAndOldList.getNewChronicDiagnosisList(),
                 chronicDiagnosisNewAndOldList.getOldChronicDiagnosisList());
+        return new CimsResponseWrapper<>(true, null, "Update chronic problem rollback success");
 
     }
 
