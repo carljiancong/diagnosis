@@ -169,6 +169,7 @@ public class ChronicDiagnosisService {
                 chronicDiagnosisOraRepository.deleteAll(chronicDiagnosisList);
                 rocketmqService.deleteChronic(chronicDiagnosisList);
             }
+            Thread.sleep(7000);
             chronicDiagnosisOraRepository.saveAll(chronicDiagnosisOldList);
             rocketmqService.saveChronic(chronicDiagnosisOldList);
         } catch (Exception e) {
