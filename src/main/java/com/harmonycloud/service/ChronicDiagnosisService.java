@@ -106,15 +106,11 @@ public class ChronicDiagnosisService {
      * @param chronicDiagnosisList
      * @throws DiagnosisException
      */
-    public void setChronicProblemCancel(List<ChronicDiagnosis> chronicDiagnosisList) throws DiagnosisException {
-        List<ChronicDiagnosis> newChronicDiagnosisList = null;
-        try {
-            newChronicDiagnosisList = chronicDiagnosisOraRepository.findByEncounterId(chronicDiagnosisList.get(0).getEncounterId());
-            chronicDiagnosisOraRepository.deleteAll(newChronicDiagnosisList);
-            rocketmqService.deleteChronic(newChronicDiagnosisList);
-        } catch (Exception e) {
-            throw new DiagnosisException(ErrorMsgEnum.SAVE_ERROR.getMessage());
-        }
+    public void setChronicProblemCancel(List<ChronicDiagnosis> chronicDiagnosisList) throws Exception {
+        List<ChronicDiagnosis> newChronicDiagnosisList = chronicDiagnosisOraRepository.findByEncounterId(chronicDiagnosisList.get(0).getEncounterId());
+        chronicDiagnosisOraRepository.deleteAll(newChronicDiagnosisList);
+        rocketmqService.deleteChronic(newChronicDiagnosisList);
+
     }
 
     /**
@@ -161,19 +157,15 @@ public class ChronicDiagnosisService {
      * @throws DiagnosisException
      */
     public void updateChronicProblemCancel(List<ChronicDiagnosis> chronicDiagnosisNewList,
-                                           List<ChronicDiagnosis> chronicDiagnosisOldList) throws DiagnosisException {
-        try {
+                                           List<ChronicDiagnosis> chronicDiagnosisOldList) throws Exception {
 
-            if (chronicDiagnosisNewList != null) {
-                List<ChronicDiagnosis> chronicDiagnosisList = chronicDiagnosisOraRepository.findByEncounterId(chronicDiagnosisNewList.get(0).getEncounterId());
-                chronicDiagnosisOraRepository.deleteAll(chronicDiagnosisList);
-                rocketmqService.deleteChronic(chronicDiagnosisList);
-            }
-            Thread.sleep(7000);
-            chronicDiagnosisOraRepository.saveAll(chronicDiagnosisOldList);
-            rocketmqService.saveChronic(chronicDiagnosisOldList);
-        } catch (Exception e) {
-            throw new DiagnosisException(ErrorMsgEnum.UPDATE_ERROR.getMessage());
+        if (CollectionUtils.isNotEmpty(chronicDiagnosisNewList)) {
+            List<ChronicDiagnosis> chronicDiagnosisList = chronicDiagnosisOraRepository.findByEncounterId(chronicDiagnosisNewList.get(0).getEncounterId());
+            chronicDiagnosisOraRepository.deleteAll(chronicDiagnosisList);
+            rocketmqService.deleteChronic(chronicDiagnosisList);
         }
+        chronicDiagnosisOraRepository.saveAll(chronicDiagnosisOldList);
+        rocketmqService.saveChronic(chronicDiagnosisOldList);
+
     }
 }

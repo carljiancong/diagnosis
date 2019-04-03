@@ -181,7 +181,8 @@ public class DiagnosisController {
      * @param chronicDiagnosisList
      */
     @PostMapping(path = "saveChronicCancel")
-    public CimsResponseWrapper<String> saveChronicCancel(@RequestBody List<ChronicDiagnosis> chronicDiagnosisList) {
+    public CimsResponseWrapper<String> saveChronicCancel(@RequestBody List<ChronicDiagnosis> chronicDiagnosisList) throws Exception{
+
         chronicDiagnosisService.setChronicProblemCancel(chronicDiagnosisList);
         return new CimsResponseWrapper<>(true, null, "Save chronic problem rollback success");
 
@@ -201,7 +202,6 @@ public class DiagnosisController {
 
         chronicDiagnosisService.updateChronicProblemList(chronicDiagnosisNewAndOldList.getNewChronicDiagnosisList(),
                 chronicDiagnosisNewAndOldList.getOldChronicDiagnosisList());
-        Thread.sleep(7000);
         return new CimsResponseWrapper<>(true, null, null);
     }
 
@@ -211,12 +211,11 @@ public class DiagnosisController {
      * @param chronicDiagnosisNewAndOldList
      */
     @PostMapping(path = "updateChronicCancel")
-    public CimsResponseWrapper<String> updateChronicProblemCancel(@RequestBody ChronicDiagnosisNewAndOldList chronicDiagnosisNewAndOldList) {
+    public CimsResponseWrapper<String> updateChronicProblemCancel(@RequestBody ChronicDiagnosisNewAndOldList chronicDiagnosisNewAndOldList) throws Exception{
+
         chronicDiagnosisService.updateChronicProblemCancel(chronicDiagnosisNewAndOldList.getNewChronicDiagnosisList(),
                 chronicDiagnosisNewAndOldList.getOldChronicDiagnosisList());
         return new CimsResponseWrapper<>(true, null, "Update chronic problem rollback success");
 
     }
-
-
 }
