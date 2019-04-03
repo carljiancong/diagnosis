@@ -57,16 +57,12 @@ public class AttendingDiagnosisService {
      * @param attendingDiagnosisList
      * @throws DiagnosisException
      */
-    public void setAttendingProblemCancel(List<AttendingDiagnosis> attendingDiagnosisList) throws DiagnosisException {
-        List<AttendingDiagnosis> newAttendingDiagnosisList = null;
-        try {
-            newAttendingDiagnosisList = attendingDiagnosisOraRepository.findByEncounterId(attendingDiagnosisList.get(0).getEncounterId());
-            attendingDiagnosisOraRepository.deleteAll(newAttendingDiagnosisList);
-            rocketmqService.deleteAttending(newAttendingDiagnosisList);
-        } catch (Exception e) {
-            logger.info(e.getMessage());
-            throw new DiagnosisException(ErrorMsgEnum.SAVE_ERROR.getMessage());
-        }
+    public void setAttendingProblemCancel(List<AttendingDiagnosis> attendingDiagnosisList) throws Exception {
+        List<AttendingDiagnosis> oldAttendingDiagnosisList = attendingDiagnosisOraRepository.findByEncounterId(attendingDiagnosisList.get(0).getEncounterId());
+
+        attendingDiagnosisOraRepository.deleteAll(oldAttendingDiagnosisList);
+        rocketmqService.deleteAttending(oldAttendingDiagnosisList);
+
     }
 
     /**
